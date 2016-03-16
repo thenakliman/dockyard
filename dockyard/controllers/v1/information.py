@@ -3,8 +3,12 @@ from pecan import expose
 class Information(object):
     def __init__(self):
         pass
+   
+    @expose()
+    def index(self):
+        return "Info"
 
 class Version(object):
     @expose()
-    def version(self):
-        pass
+    def index(self):
+        return "version" 

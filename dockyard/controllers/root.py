@@ -1,18 +1,19 @@
-from pecan import expose
-from pecan import rest
+from pecan import expose, rest
 
+from dockyard.controllers import v1
 
-class RootController(object):
+class RootController(rest.RestController):
 
-    self._version = ['v1.0']
+    _version = ['v1']
     # List of the allowed versions of the API.
 
-    self._default_version = 'v1.0'
+    _default_version = 'v1'
     # Default value of the API version.
+    v1 = v1.Controller()
 
     @expose()
     def index(self):
-        return dict()
+        return "OK\n"
 
     @expose()
     def _route(self, args):
@@ -23,6 +24,6 @@ class RootController(object):
         """
 
         if args[0] and args[0] not in self._version:
-            args = self._default_version + args
+            args = [self._default_version] + args
 
-        return super(rest.RootController(), self)._route(args) 
+        return super(RootController, self)._route(args) 
