@@ -1,14 +1,18 @@
 from pecan import expose
+from pecan import rest
 
-class Information(object):
-    def __init__(self):
-        pass
-   
-    @expose()
-    def index(self):
-        return "Info"
+import json
 
-class Version(object):
+from dockyard.common import base
+
+class Information(rest.RestController):
     @expose()
-    def index(self):
-        return "version" 
+    def get(self):
+        rest_client = base.RESTClient()
+        return rest_client.GET('http://10.0.0.12:3333/info').data
+
+class Version(rest.RestController):
+    @expose()
+    def get(self):
+        rest_client = base.RESTClient()
+        return rest_client.GET('http://10.0.0.12:3333/version').data

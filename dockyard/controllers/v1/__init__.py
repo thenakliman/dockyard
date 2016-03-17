@@ -3,8 +3,10 @@ from  dockyard.controllers.v1 import container
 from  dockyard.controllers.v1 import image
 from  dockyard.controllers.v1 import network
 from  dockyard.controllers.v1 import volume
-	
-class Controller(object):
+
+from pecan import rest
+
+class Controller(rest.RestController):
     info = information.Information()
     version = information.Version()
     containers = container.ContainerController()
