@@ -1,9 +1,9 @@
-from  dockyard.controllers.v1 import information
-from  dockyard.controllers.v1 import container
-from  dockyard.controllers.v1 import image
-from  dockyard.controllers.v1 import network
-from  dockyard.controllers.v1 import volume
-
+from dockyard.controllers.v1 import information
+from dockyard.controllers.v1 import container
+from dockyard.controllers.v1 import image
+from dockyard.controllers.v1 import network
+from dockyard.controllers.v1 import volume
+from dockyard.controllers.v1 import cluster
 from pecan import rest
 
 class Controller(rest.RestController):
@@ -13,3 +13,4 @@ class Controller(rest.RestController):
     images = image.ImageController()
     networks = network.NetworkController()
     volumes = volume.VolumeController() 
+    clusters = cluster.ClusterController()
