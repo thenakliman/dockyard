@@ -12,5 +12,5 @@ class RoundRobinScheduler(Scheduler):
     def get_host(self):
         hosts = self.cluster.get_hosts()
         num_hosts = len(hosts) 
-        self.count += 1
-        return (hosts[self.count % num_hosts])
+        self.count = (self.count + 1) % num_hosts
+        return (hosts[self.count])

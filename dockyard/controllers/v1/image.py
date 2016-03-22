@@ -16,8 +16,8 @@ class Image(object):
         abort(404)
 
     @create.when(method="POST")
-    def create_POST(self, *args):
-        return self.image.create(_id)
+    def create_POST(self, fromImage, tag='latest'):
+        return self.image.create(fromImage, tag)
 
     @expose()
     def json(self, _id=None):

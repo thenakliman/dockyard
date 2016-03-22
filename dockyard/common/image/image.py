@@ -6,12 +6,12 @@ class Image(object):
         self.rest_client = base.RESTClient()
 
     def list(self, _id=None):
-        host = utils.get_host()
-        ln = link.make_url(host=host, protocol='http', url='/images/json')
-        return self.rest_client.GET(ln).data
+        return utils.dispatch_request(protocol='http', url='/images/json').data
 
-    def create(self, _id):
-        return "Valid create\n"
+    def create(self, fromImage, tag):
+        query = link.make_query_url(fromImage=fromImage, tag=tag)
+        url = (('/images/create?%s') % (query))
+        return utils.dispatch_post_request(protocol='http', url=url)
 
     def push(self, _id):
         return (("PUSH %s Image\n") % (_id))

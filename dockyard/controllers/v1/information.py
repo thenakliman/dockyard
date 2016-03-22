@@ -2,21 +2,20 @@ from pecan import expose
 from pecan import rest
 
 from dockyard.common import base
+from dockyard.common.information  import information
 
 class Information(rest.RestController):
     def __init__(self):
-        self.rest_client = base.RESTClient()
-        super(Information, self).__init__()
+        self.information = information.Information()
 
     @expose()
     def get(self):
-        return self.rest_client.GET('http://127.0.0.1:3333/info').data
+        return self.information.info()
 
 class Version(rest.RestController):
     def __init__(self):
-        self.rest_client = base.RESTClient()
-        super(Version, self).__init__()
+        self.information = information.Version()
 
     @expose()
     def get(self):
-        return self.rest_client.GET('http://127.0.0.1:3333/version').data
+        return self.information.version()
