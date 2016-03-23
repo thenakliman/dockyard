@@ -9,9 +9,9 @@ class Image(object):
         return utils.dispatch_request(protocol='http', url='/images/json').data
 
     def create(self, fromImage, tag):
-        query = link.make_query_url(fromImage=fromImage, tag=tag)
-        url = (('/images/create?%s') % (query))
-        return utils.dispatch_post_request(protocol='http', url=url)
+        url = '/images/create'
+        query = { "fromImage" : fromImage, "tag" : tag }
+        return utils.dispatch_post_request(protocol='http', url=url, query_params=query)
 
     def push(self, _id):
         return (("PUSH %s Image\n") % (_id))

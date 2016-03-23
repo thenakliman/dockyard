@@ -1,11 +1,14 @@
-from dockyard.common import base
+from dockyard.common import base, link
+from dockyard.common import utils
 
 class Network(object):
     def __init__(self):
         self.rest_client = base.RESTClient()
 
     def list(self, name_or_id):
-        return str(self.rest_client.GET("http://127.0.0.1:3333/networks/").data)
+        host = utils.get_host()
+        ln = link.make_url(host=host, protocol='http', url='/networks/')
+        return str(self.rest_client.GET(ln).data)
 
     def set_network(self, _id, *connect):
         return "SET network"
