@@ -5,6 +5,7 @@ from dockyard.controllers.v1 import network
 from dockyard.controllers.v1 import volume
 from dockyard.controllers.v1 import cluster
 from pecan import rest
+from pecan import expose
 
 class Controller(rest.RestController):
     info = information.Information()

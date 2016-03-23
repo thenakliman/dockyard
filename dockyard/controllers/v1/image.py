@@ -17,7 +17,7 @@ class Image(object):
 
     @create.when(method="POST")
     def create_POST(self, fromImage, tag='latest'):
-        return self.image.create(fromImage, tag)
+        return self.image.create(fromImage, tag).data
 
     @expose()
     def json(self, _id=None):

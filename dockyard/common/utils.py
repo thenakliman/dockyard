@@ -20,6 +20,6 @@ def dispatch_request(url, protocol):
     ln = get_link(url, protocol)
     return rest_client.GET(ln)
 
-def dispatch_post_request(url, protocol):
+def dispatch_post_request(url, protocol, query_params):
     ln = get_link(url, protocol)
-    return rest_client.POST(ln)
+    return rest_client.POST(url=ln, query_params=query_params)
