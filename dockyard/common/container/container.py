@@ -1,14 +1,11 @@
-from dockyard.common import base, link
 from dockyard.common import utils
 
 class Container(object):
     def __init__(self):
-        self.rest_client = base.RESTClient()
+        pass
 
     def list(self, name_id=None):
-        host = utils.get_host()
-        ln = link.make_url(host=host, protocol='http', url='/containers/json')
-        return self.rest_client.GET(ln).data
+        return utils.dispatch_get_request('/containers/json', 'http').data
 
     def stats(self, _id):
         return "stats"

@@ -6,7 +6,7 @@ class Image(object):
         self.rest_client = base.RESTClient()
 
     def list(self, _id=None):
-        return utils.dispatch_request(protocol='http', url='/images/json').data
+        return utils.dispatch_get_request(protocol='http', url='/images/json').data
 
     def create(self, fromImage, tag):
         url = '/images/create'
