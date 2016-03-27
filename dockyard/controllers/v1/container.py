@@ -1,7 +1,6 @@
 from pecan import expose, abort
 
-from dockyard.common.container import container
-
+from dockyard.common.container import container 
 class Container(object):
     def __init__(self):
         self.container = container.Container()
@@ -69,29 +68,40 @@ class Container(object):
     @rename.when(method="POST")
     def rename_POST(self, _id):
         return self.container.rename(_id)
-    
 
 
 class ContainerController(object):
     def __init__(self):
         pass
 
-    @expose(generic=True)
-    def create(self, *args):
-        abort(404)
+#    @expose(generic=True)
+#    def create(self, *args):
+#        abort(404)
 
-    @create.when(method="POST")
-    def create_container(self, *args):
-        return self.container.create(args)
+#    @create.when(method="POST")
+#    def create_container(self, *args):
+#        return self.container.create(args)
 
     @expose()
     def json(self):
         return Container().json()
 
-    def _lookup(self, _id=None, op=None):
-        if op != None:
-            new_url = (op, _id)
-        else:
-            new_url = tuple([_id])
+    @expose()
+    def _lookup(self, id_name_op=None, op=None):
+        new_url = []
+        print("Inside ++++++++++")
+        if op:
+            new_url.append(op)
+        elif id_name_op:
+            new_url.append(id_name_op)
 
-        return Container(), new_url;
+        if op:
+            new_url.append(id_name_op)
+
+        if new_url:        
+           new_url = tuple(new_url)
+        else:
+           new_url = tuple([''])  
+
+        print(new_url)
+        return Container(), new_url

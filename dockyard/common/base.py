@@ -96,7 +96,7 @@ class RESTClientObject(object):
                 url += '?' + urlencode(query_params)
             if headers['Content-Type'] == 'application/json':
                 response = self.agent(url).request(method, url,
-#                                      body=json.dumps(body),
+                                      body=json.dumps(body),
                                         headers=headers)
             if headers['Content-Type'] == 'application/x-www-form-urlencoded':
                 response = self.agent(url).request(method, url,

@@ -12,8 +12,16 @@ class Image(object):
         return self.image.push(_id)
 
     @expose(generic=True)
+    def index(self):
+        abort(404)
+
+    @expose(generic=True)
     def create(self, *args):
         abort(404)
+
+    @index.when(method="DELETE")
+    def delete(self, _id):
+        return self.image.delete(_id).data
 
     @create.when(method="POST")
     def create_POST(self, fromImage, tag='latest'):

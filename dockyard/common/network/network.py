@@ -1,10 +1,6 @@
-<<<<<<< Updated upstream
-from dockyard.common import base, link
-=======
-import ast
+import ast, json
 from pecan import request
 
->>>>>>> Stashed changes
 from dockyard.common import utils
 
 class Network(object):
@@ -17,13 +13,21 @@ class Network(object):
             url = url + ('/%s' % (name_or_id))
         return utils.dispatch_get_request(url, 'http').data
 
-    def connect(self, _id):
-        url = ('/networks/%s/create' % (_id))
-        body = ast.literal_eval(request.environ['webob._parsed_post_vars'][0].keys()[0])
-        return utils.dispatch_post_request(url, 'http', body)
+    def connect(self, _id, data):
+        body = json.dumps(data)
+        url = ('/networks/%s/connect' % (_id))
+        return utils.dispatch_post_request(url, 'http', body=body)
 
-    def disconnect(self, _id):
-        return "SET network"
+    def disconnect(self, _id, data):
+        body = json.dumps(data)
+        url = ('/networks/%s/disconnect' % (_id))
+        return utils.dispatch_post_request(url, 'http', body=body)
 
-    def create(self):
-        return "Create Network"
+    def create(self, data):
+        url = ('/networks/create')
+        body = json.dumps(data)
+        return utils.dispatch_post_request(url, 'http', body=data)
+
+    def delete(self, _id):
+        url = ('/networks/%s' % (_id))
+        return utils.dispatch_delete_request(url, 'http').data

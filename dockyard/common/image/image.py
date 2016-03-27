@@ -15,3 +15,7 @@ class Image(object):
 
     def push(self, _id):
         return (("PUSH %s Image\n") % (_id))
+
+    def delete(self, _id):
+        url = ('/images/%s' % (_id))
+        return utils.dispatch_delete_request(url=url, protocol='http') 

@@ -5,13 +5,16 @@ class Container(object):
         pass
 
     def list(self, name_id=None):
-        return utils.dispatch_get_request('/containers/json', 'http').data
+        url = '/containers/json'
+        return utils.dispatch_get_request(url, 'http').data
 
     def stats(self, _id):
-        return "stats"
+        url = ('/containers/%s/stats' % (_id))
+        return utils.dispatch_get_request(url, 'http')
 
     def archive(self, _id):
-        return "archive"
+        url = ('/containers/%s/archive' % (_id))
+        return utils.dispatch_get_request(url, 'http')
 
     def upload(self, _id):
         return "upload"
@@ -20,7 +23,8 @@ class Container(object):
         return "copy"
 
     def logs(self, _id):
-        return "logs"
+        url = ('/containers/%s/logs' % (_id))
+        return utils.dispatch_get_request(url, 'http')
  
     def start(self, _id):
         return "start"

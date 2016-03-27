@@ -20,6 +20,13 @@ def dispatch_get_request(url, protocol):
     ln = get_link(url, protocol)
     return rest_client.GET(ln)
 
-def dispatch_post_request(url, protocol, query_params=None, body=None):
+def dispatch_post_request(url, protocol, body=None, query_params=None):
+    from dockyard.common import stubs
     ln = get_link(url, protocol)
-    return rest_client.POST(url=ln, query_params=query_params, body=body)
+    print body
+    return stubs.send_request(ln, body)
+#    return rest_client.POST(url=ln, query_params=query_params, body=body)
+
+def dispatch_delete_request(url, protocol, query_params=None):
+    ln = get_link(url, protocol)
+    return rest_client.DELETE(ln)
