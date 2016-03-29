@@ -1,0 +1,1 @@
+curl -XPOST -H 'Content-Type: application/json' localhost:5869/containers/$1/update  -d '{ "CpuShares": 512 }'

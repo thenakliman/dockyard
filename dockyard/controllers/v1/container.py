@@ -1,6 +1,7 @@
 from pecan import expose, abort
 
 from dockyard.common.container import container 
+
 class Container(object):
     def __init__(self):
         self.container = container.Container()
@@ -8,6 +9,26 @@ class Container(object):
     @expose(generic=True)
     def index(self):
        return "index"	
+
+    @index.when(method="DELETE")
+    def delete(self, _id):
+       return self.container.delete(_id)
+
+    @expose(generic=True)
+    def resize(self, _id, **kwargs):
+        abort(404)
+
+    @resize.when(method="POST")
+    def resize_(self, _id, **kwargs):
+       return self.container.resize(_id, **kwargs)
+
+    @expose()
+    def changes(self, _id):
+        return self.container.changes(_id)
+
+    @expose()
+    def export(self, _id):
+        return self.container.export(_id)
 
     @expose()
     def json(self, name_id=None):
@@ -19,7 +40,7 @@ class Container(object):
 
     @expose(generic=True)
     def archive(self, _id):
-        return self.container.archive(_id)
+        abort(404)
 
     @archive.when(method="PUT")
     def upload(self, _id):
@@ -45,6 +66,30 @@ class Container(object):
     def start_POST(self,  _id):
         return self.container.start(_id)
 
+    @expose(generic=True)
+    def kill(self):
+        abort(404)
+
+    @kill.when(method="POST")
+    def kill_POST(self,  _id):
+        return self.container.kill(_id)
+
+    @expose(generic=True)
+    def restart(self):
+        abort(404)
+
+    @restart.when(method="POST")
+    def restart_POST(self,  _id):
+        return self.container.restart(_id)
+
+    @expose(generic=True)
+    def stop(self):
+        abort(404)
+
+    @stop.when(method="POST")
+    def stop_POST(self,  _id):
+        return self.container.stop(_id)
+
     @expose(generic=True, route='exec')
     def exe(self):
         abort(404)
@@ -66,8 +111,47 @@ class Container(object):
         abort(404)
 
     @rename.when(method="POST")
-    def rename_POST(self, _id):
-        return self.container.rename(_id)
+    def rename_POST(self, _id, **kwargs):
+        return self.container.rename(_id, kwargs)
+
+    @expose()
+    def top(self, _id):
+        return self.container.top(_id)
+
+    @expose(generic=True)
+    def update(self, _id):
+        abort(404)
+
+    @update.when(method="POST")
+    def update_POST(self, _id, **kwargs):
+        return self.container.update(_id, kwargs)
+
+    @expose(generic=True)
+    def pause(self, _id):
+        abort(404)
+
+    @pause.when(method="POST")
+    def pause_POST(self, _id):
+        return self.container.pause(_id)
+
+    @expose(generic=True)
+    def unpause(self, _id):
+        abort(404)
+
+    @unpause.when(method="POST")
+    def unpause_POST(self, _id):
+        return self.container.unpause(_id)
+
+    @expose(generic=True)
+    def wait(self, _id):
+        abort(404)
+
+    @wait.when(method="POST")
+    def wait_POST(self, _id):
+        return self.container.wait(_id)
+
+    def delete(self, _id):
+        return self.container.delete(_id)
 
 
 class ContainerController(object):
@@ -84,10 +168,18 @@ class ContainerController(object):
 
     @expose()
     def json(self):
-        return container.Container().json()
+        return Container().json()
+
+    @expose(generic=True)
+    def index(self):
+        abort(404)
+
+    def index_DELETE(self, _id):
+        Container().delete()
 
     @expose()
-    def _lookup(self, id_name_op=None, op=None):
+    @expose()
+    def _lookup(self, id_name_op=None, op=None, **kwargs):
         new_url = []
         if op:
             new_url.append(op)
@@ -96,6 +188,9 @@ class ContainerController(object):
 
         if op:
             new_url.append(id_name_op)
+
+        if kwargs:
+            new_url.append(kwargs)
 
         if new_url:        
            new_url = tuple(new_url)
