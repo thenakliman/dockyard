@@ -16,17 +16,17 @@ class Network(object):
     def connect(self, _id, data):
         body = json.dumps(data)
         url = ('/networks/%s/connect' % (_id))
-        return utils.dispatch_post_request(url, 'http', body=body)
+        return utils.dispatch_post_request(url, 'http', body=body).data
 
     def disconnect(self, _id, data):
         body = json.dumps(data)
         url = ('/networks/%s/disconnect' % (_id))
-        return utils.dispatch_post_request(url, 'http', body=body)
+        return utils.dispatch_post_request(url, 'http', body=body).data
 
     def create(self, data):
         url = ('/networks/create')
         body = json.dumps(data)
-        return utils.dispatch_post_request(url, 'http', body=data)
+        return utils.dispatch_post_request(url, 'http', body=body).data
 
     def delete(self, _id):
         url = ('/networks/%s' % (_id))
