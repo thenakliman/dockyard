@@ -27,20 +27,13 @@ class VolumeController(object):
         pass
 
     @expose()
-    def _lookup(self, id_name_op=None, op=None):
-        new_url = []    
-
+    def _lookup(self, op=None):
+        new_url = [''] 
         if op:
             new_url.append(op)
-        elif id_name_op:
-            new_url.append(id_name_op)
-
-        if op:
-            new_url.append(id_name_op)
 
         if new_url:        
            new_url = tuple(new_url)
         else:
            new_url = tuple([''])  
-
         return Volume(), new_url

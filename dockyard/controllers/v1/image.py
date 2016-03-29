@@ -31,6 +31,15 @@ class Image(object):
     def json(self, _id=None):
         return self.image.list(_id)
 
+    @expose()
+    def search(self, term=None):
+        return self.image.search(term)
+
+    @expose()
+    def history(self, _id=None):
+        return self.image.history(_id)
+
+
 class ImageController(object):
     def __init__(self):
         pass

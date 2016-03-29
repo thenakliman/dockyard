@@ -18,8 +18,11 @@ def get_link(url, protocol):
     host = get_host()
     return link.make_url(host=host, protocol=protocol, url=url)
     
-def dispatch_get_request(url, protocol):
+def dispatch_get_request(url, protocol, query_params=None):
     ln = get_link(url, protocol)
+    if query_params:
+        query=link.make_query_url(query_params)
+        ln = ln + '?' + query
     return rest_client.GET(ln)
 
 def dispatch_post_request(url, protocol, body=None, query_params=None):

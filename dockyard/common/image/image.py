@@ -8,6 +8,15 @@ class Image(object):
     def list(self, _id=None):
         return utils.dispatch_get_request(protocol='http', url='/images/json').data
 
+    def history(self, _id=None):
+        url='/images/%s/history' % _id
+        return utils.dispatch_get_request(protocol='http', url=url).data
+
+    def search(self, term=None):
+        url='/images/search'
+        query = { "term" : term}
+        return utils.dispatch_get_request(protocol='http', url=url, query_params=query).data
+
     def create(self, fromImage, tag):
         url = '/images/create'
         query = { "fromImage" : fromImage, "tag" : tag }
