@@ -74,22 +74,21 @@ class ContainerController(object):
     def __init__(self):
         pass
 
-#    @expose(generic=True)
-#    def create(self, *args):
-#        abort(404)
+    @expose(generic=True)
+    def create(self, *args):
+        abort(404)
 
-#    @create.when(method="POST")
-#    def create_container(self, *args):
-#        return self.container.create(args)
+    @create.when(method="POST")
+    def create_container(self, **args):
+        return container.Container().create(args)
 
     @expose()
     def json(self):
-        return Container().json()
+        return container.Container().json()
 
     @expose()
     def _lookup(self, id_name_op=None, op=None):
         new_url = []
-        print("Inside ++++++++++")
         if op:
             new_url.append(op)
         elif id_name_op:
@@ -103,5 +102,4 @@ class ContainerController(object):
         else:
            new_url = tuple([''])  
 
-        print(new_url)
         return Container(), new_url

@@ -12,7 +12,7 @@ def make_url(host='127.0.0.1', port=None, protocol='http', url=None):
 
     return url
 
-def make_query_url(**kwargs):
+def make_query_url(kwargs):
     url = ''
     for key, value in kwargs.iteritems():
         url += key + '=' + value + '&'
