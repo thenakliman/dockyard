@@ -1,5 +1,7 @@
 from dockyard.common import utils
 
+import json
+
 class Container(object):
     def __init__(self):
         pass
@@ -15,6 +17,10 @@ class Container(object):
     def archive(self, _id):
         url = ('/containers/%s/archive' % (_id))
         return utils.dispatch_get_request(url, 'http')
+
+    def create(self, body=None):
+        url = ('/containers/create')
+        return utils.dispatch_post_request(url, 'http', body=json.dumps(body)).data
 
     def upload(self, _id):
         return "upload"
