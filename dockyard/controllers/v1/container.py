@@ -1,4 +1,4 @@
-from pecan import expose, abort
+from pecan import expose, abort, request
 
 from dockyard.common.container import container 
 
@@ -8,11 +8,11 @@ class Container(object):
 
     @expose(generic=True)
     def index(self):
-       return "index"	
+        abort(404)
 
     @index.when(method="DELETE")
-    def delete(self, _id):
-       return self.container.delete(_id)
+    def delete(self, _id, **kwargs):
+        return self.container.delete(_id, **kwargs)
 
     @expose(generic=True)
     def resize(self, _id, **kwargs):
@@ -20,7 +20,7 @@ class Container(object):
 
     @resize.when(method="POST")
     def resize_(self, _id, **kwargs):
-       return self.container.resize(_id, **kwargs)
+        return self.container.resize(_id, **kwargs)
 
     @expose()
     def changes(self, _id):
@@ -32,7 +32,8 @@ class Container(object):
 
     @expose()
     def json(self, name_id=None):
-        return self.container.list(name_id)
+        query_params = request.query_string
+        return self.container.list(name_id,  query_params=query_params)
 
     @expose()
     def stats(self, _id):
@@ -56,7 +57,8 @@ class Container(object):
 
     @expose(generic=True)
     def logs(self, _id):
-        return self.container.logs(_id)
+        query_params = request.query_string
+        return self.container.logs(_id, query_params)
     	
     @expose(generic=True)
     def start(self):
@@ -64,7 +66,8 @@ class Container(object):
 
     @start.when(method="POST")
     def start_POST(self,  _id):
-        return self.container.start(_id)
+        query_params = request.query_string
+        return self.container.start(_id, query_params=query_params)
 
     @expose(generic=True)
     def kill(self):
@@ -72,7 +75,8 @@ class Container(object):
 
     @kill.when(method="POST")
     def kill_POST(self,  _id):
-        return self.container.kill(_id)
+        query_params = request.query_string
+        return self.container.kill(_id, query_params=query_params)
 
     @expose(generic=True)
     def restart(self):
@@ -88,7 +92,8 @@ class Container(object):
 
     @stop.when(method="POST")
     def stop_POST(self,  _id):
-        return self.container.stop(_id)
+        query_params = request.query_string
+        return self.container.stop(_id, query_params=query_params)
 
     @expose(generic=True, route='exec')
     def exe(self):
@@ -112,11 +117,12 @@ class Container(object):
 
     @rename.when(method="POST")
     def rename_POST(self, _id, **kwargs):
-        return self.container.rename(_id, kwargs)
+        return self.container.rename(_id, **kwargs)
 
     @expose()
     def top(self, _id):
-        return self.container.top(_id)
+        query_params = request.query_string
+        return self.container.top(_id, query_params=query_params)
 
     @expose(generic=True)
     def update(self, _id):
@@ -174,12 +180,12 @@ class ContainerController(object):
     def index(self):
         abort(404)
 
-    def index_DELETE(self, _id):
-        Container().delete()
+    @expose()
+    def index_DELETE(self, _id, **kwargs):
+        Container().delete(_id, **kwargs)
 
     @expose()
-    @expose()
-    def _lookup(self, id_name_op=None, op=None, **kwargs):
+    def _lookup(self, id_name_op=None, op=None, *args):
         new_url = []
         if op:
             new_url.append(op)
@@ -189,8 +195,8 @@ class ContainerController(object):
         if op:
             new_url.append(id_name_op)
 
-        if kwargs:
-            new_url.append(kwargs)
+        if args:
+            new_url.append(args)
 
         if new_url:        
            new_url = tuple(new_url)

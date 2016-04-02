@@ -6,11 +6,15 @@ class Container(object):
     def __init__(self):
         pass
 
-    def list(self, name_id=None):
+    def list(self, name_id=None, query_params=None):
         if name_id:
             url = ('/containers/%s/json' % (name_id))
         else:
             url = '/containers/json'
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_get_request(url, 'http').data
 
     def changes(self, name_id=None):
@@ -20,18 +24,21 @@ class Container(object):
     def resize(self, _id, **kwargs):
         url = (('/containers/%s/changes') % (_id))
 
-        if not kwargs:
+        if kwargs:
             query = link.make_query_url(kwargs)
-            url = url +'?' + query
+            url = ('%s?%s' % (url, query ))
 
         return utils.dispatch_get_request(url, 'http').data
 
     def export(self, name_id=None):
         url = (('/containers/%s/export') % (name_id))
-        return utils.dispatch_get_request(url, 'http').data
+        return utils.dispatch_get_request(url, 'http')
 
-    def top(self, name_id=None):
+    def top(self, name_id=None, query_params=None):
         url = (('/containers/%s/top') % (name_id))
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_get_request(url, 'http').data
 
     def stats(self, _id):
@@ -53,24 +60,45 @@ class Container(object):
         url = ('/containers/%s/copy' % (_id))
         return utils.dispatch_post_request(url, 'http').data
 
-    def logs(self, _id):
-        url = ('/containers/%s/logs' % (_id))
+    def logs(self, _id, query_string, **kwargs):
+        url = ('/containers/%s/logs?%s' % (_id, query_string))
+
+        if kwargs:
+            query = link.make_query_url(kwargs)
+            url = url +'/' + query
+
         return utils.dispatch_get_request(url, 'http').data
  
-    def start(self, _id):
+    def start(self, _id, query_params=None):
         url = ('/containers/%s/start' % (_id))
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_post_request(url, 'http').data
 
-    def restart(self, _id):
+    def restart(self, _id, query_params=None):
         url = ('/containers/%s/restart' % (_id))
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_post_request(url, 'http').data
 
-    def kill(self, _id):
+    def kill(self, _id, query_params=None):
         url = ('/containers/%s/kill' % (_id))
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_post_request(url, 'http').data
 
-    def stop(self, _id):
+    def stop(self, _id, query_params=None):
         url = ('/containers/%s/stop' % (_id))
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
         return utils.dispatch_post_request(url, 'http').data
 
     def exe(self, _id):
@@ -79,13 +107,13 @@ class Container(object):
     def attach(self, _id):
         return "attach" 
 
-    def rename(self, _id, query_params=None):
+    def rename(self, _id, **kwargs):
         url = (('/containers/%s/rename') % (_id))
        
-        if query_params:
-            query = link.make_query_url(query_params)
+        if kwargs:
+            query = link.make_query_url(kwargs)
             url = url +'?' + query
-
+        
         return utils.dispatch_post_request(url, 'http').data
 
     def update(self, _id, body=None):
@@ -104,6 +132,11 @@ class Container(object):
         url = ('/containers/%s/wait' % (_id))
         return utils.dispatch_post_request(url, 'http').data
 
-    def delete(self, _id):
+    def delete(self, _id, **kwargs):
         url = ('/containers/%s' % (_id))
+
+        if kwargs:
+            query = link.make_query_url(kwargs)
+            url = ('%s?%s' % (url, query))
+
         return utils.dispatch_delete_request(url, 'http').data
