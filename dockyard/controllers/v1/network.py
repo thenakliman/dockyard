@@ -30,17 +30,18 @@ class Network(object):
     def _disconnect(self, _id, **kwargs):
         return self.network.disconnect(_id, kwargs)
 
+    
+class NetworkController(object):
+    def __init__(self):
+        self.network = network.Network()
+
     @expose(generic=True)
     def create(self):
         abort(404)
 
     @create.when(method="POST")
     def _create(self, **kwargs):
-        return self.network.create(kwargs)
-    
-class NetworkController(object):
-    def __init__(self):
-        pass
+        return self.network.create(kwargs)      
 
     @expose()
     def _lookup(self, id_name_op=None, op=None):
@@ -48,10 +49,8 @@ class NetworkController(object):
         if op:
             new_url.append(op)
             new_url.append(id_name_op)
-        elif id_name_op != 'create':
+        elif id_name_op:
             new_url.append('')
-            new_url.append(id_name_op)
-        elif id_name_op == 'create':
             new_url.append(id_name_op)
 
         if new_url:        

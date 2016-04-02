@@ -28,3 +28,7 @@ class Image(object):
     def delete(self, _id):
         url = ('/images/%s' % (_id))
         return utils.dispatch_delete_request(url=url, protocol='http') 
+
+    def tag(self, _id=None, kwargs):
+        url='/images/%s/tag' % _id
+        return utils.dispatch_post_request(protocol='http', url=url, query_params=kwargs).data

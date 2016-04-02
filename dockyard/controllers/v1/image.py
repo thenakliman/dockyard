@@ -19,13 +19,13 @@ class Image(object):
     def create(self, *args):
         abort(404)
 
-    @index.when(method="DELETE")
-    def delete(self, _id):
-        return self.image.delete(_id).data
-
     @create.when(method="POST")
     def create_POST(self, fromImage, tag='latest'):
         return self.image.create(fromImage, tag).data
+
+    @index.when(method="DELETE")
+    def delete(self, _id):
+        return self.image.delete(_id).data
 
     @expose()
     def json(self, _id=None):
@@ -39,6 +39,21 @@ class Image(object):
     def history(self, _id=None):
         return self.image.history(_id)
 
+    @expose(generic=True)
+    def tag(self, *args):
+        abort(404)
+
+    @tag.when(method="POST")
+    def tag_POST(self, id_or_name, **kwargs):
+        return self.image.tag(id_or_name, kwargs).data
+
+    @expose(generic=True)
+    def build(self, *args):
+        abort(404)
+
+    @build.when(method="POST")
+    def build_POST(self, **kwargs):
+        return self.image.build(kwargs).data
 
 class ImageController(object):
     def __init__(self):
