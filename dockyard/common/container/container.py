@@ -1,6 +1,7 @@
 from dockyard.common import utils, link
 
 import json
+from pecan.core import redirect
 
 class Container(object):
     def __init__(self):
@@ -32,10 +33,12 @@ class Container(object):
 
     def export(self, name_id=None):
         url = (('/containers/%s/export') % (name_id))
-        return utils.dispatch_get_request(url, 'http')
+        redirect(utils.get_link(url, 'http'))
+        # return str(utils.dispatch_get_request(url, 'http').data)
 
     def top(self, name_id=None, query_params=None):
         url = (('/containers/%s/top') % (name_id))
+
         if query_params:
             url = ('%s?%s' % (url, query_params))
 
@@ -43,22 +46,33 @@ class Container(object):
 
     def stats(self, _id):
         url = ('/containers/%s/stats' % (_id))
-        return utils.dispatch_get_request(url, 'http')
+        redirect(utils.get_link(url, 'http'))
+        # return utils.dispatch_get_request(url, 'http')
 
-    def archive(self, _id):
+    def archive(self, _id, query_params=None):
         url = ('/containers/%s/archive' % (_id))
-        return utils.dispatch_post_request(url, 'http')
+        
+        if query_params:
+            url = ("%s?%s" % (url, query_params))
+
+        #redirect(utils.get_link(url, 'http'))
+        return  utils.dispatch_put_request(url, 'http').data
 
     def create(self, body=None):
         url = ('/containers/create')
         return utils.dispatch_post_request(url, 'http', body=json.dumps(body)).data
 
-    def upload(self, _id):
-        return "upload"
+    def upload(self, _id, body=None, query_params=None, **kwargs):
+        url = ('/containers/%s/archive' %(_id))
+        if query_params:
+            url = ("%s?%s" % (url, query_params))
+ 
+        return utils.dispatch_put_request(url, 'http', body=body).data
 
     def copy(self, _id):
         url = ('/containers/%s/copy' % (_id))
-        return utils.dispatch_post_request(url, 'http').data
+        redirect(utils.get_link(url, 'http'))
+        # return str(utils.dispatch_post_request(url, 'http').data)
 
     def logs(self, _id, query_string, **kwargs):
         url = ('/containers/%s/logs?%s' % (_id, query_string))
@@ -67,7 +81,8 @@ class Container(object):
             query = link.make_query_url(kwargs)
             url = url +'/' + query
 
-        return utils.dispatch_get_request(url, 'http').data
+        redirect(utils.get_link(url, 'http'))
+        # return utils.dispatch_get_request(url, 'http').data
  
     def start(self, _id, query_params=None):
         url = ('/containers/%s/start' % (_id))
@@ -102,10 +117,15 @@ class Container(object):
         return utils.dispatch_post_request(url, 'http').data
 
     def exe(self, _id):
-        return "exec"
+        abort(404)
 
-    def attach(self, _id):
-        return "attach" 
+    def attach(self, _id, query_params=None):
+        url = ('/containers/%s/attach' % (_id))
+
+        if query_params:
+            url = ('%s?%s' % (url, query_params))
+
+        redirect(utils.get_link(url, 'http'))
 
     def rename(self, _id, **kwargs):
         url = (('/containers/%s/rename') % (_id))

@@ -120,7 +120,7 @@ class RESTClientObject(object):
         if sys.version_info > (3,):
             response.data = response.data.decode('utf8')
         # log response body
-        logger.debug("response body: %s" % response.data)
+        #logger.debug("response body: %s" % response.data)
 
         if response.status not in range(200, 206):
             raise ApiException(http_resp=response)

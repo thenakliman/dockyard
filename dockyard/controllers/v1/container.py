@@ -41,11 +41,14 @@ class Container(object):
 
     @expose(generic=True)
     def archive(self, _id):
-        abort(404)
+        query_params = request.query_string
+        return self.container.archive(_id, query_params)
 
     @archive.when(method="PUT")
-    def upload(self, _id):
-        return self.container.upload(_id)
+    def upload(self, _id, **kwargs):
+        body = request.body
+        query_params = request.query_string
+        return self.container.upload(_id, body=body, query_params=query_params)
 
     @expose(generic=True)
     def copy(self, _id):
@@ -109,7 +112,8 @@ class Container(object):
 
     @attach.when(method="POST")
     def attach_POST(self, _id):
-        return self.container.attach(_id)
+        query_params = request.query_string
+        return self.container.attach(_id, query_params=query_params)
 
     @expose(generic=True)
     def rename(self):
