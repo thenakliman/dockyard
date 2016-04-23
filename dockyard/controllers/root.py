@@ -2,6 +2,7 @@ from pecan import expose, rest
 
 from dockyard.controllers import v1
 
+
 class RootController(rest.RestController):
 
     _version = ['v1']
@@ -18,7 +19,7 @@ class RootController(rest.RestController):
     @expose()
     def _route(self, args):
         """Override default routing.
- 
+
            It redirect to the default value of the dockyard API, if version
            of the API is not specified or wrongly specified
         """
@@ -26,4 +27,4 @@ class RootController(rest.RestController):
         if args[0] and args[0] not in self._version:
             args = [self._default_version] + args
 
-        return super(RootController, self)._route(args) 
+        return super(RootController, self)._route(args)

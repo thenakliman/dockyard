@@ -2,6 +2,7 @@ from pecan import expose, abort
 
 from dockyard.common.network import network
 
+
 class Network(object):
     def __init__(self):
         self.network = network.Network()
@@ -30,7 +31,7 @@ class Network(object):
     def _disconnect(self, _id, **kwargs):
         return self.network.disconnect(_id, kwargs)
 
-    
+
 class NetworkController(object):
     def __init__(self):
         self.network = network.Network()
@@ -41,7 +42,7 @@ class NetworkController(object):
 
     @create.when(method="POST")
     def _create(self, **kwargs):
-        return self.network.create(kwargs)      
+        return self.network.create(kwargs)
 
     @expose()
     def _lookup(self, id_name_op=None, op=None):
@@ -53,9 +54,9 @@ class NetworkController(object):
             new_url.append('')
             new_url.append(id_name_op)
 
-        if new_url:        
-           new_url = tuple(new_url)
+        if new_url:
+            new_url = tuple(new_url)
         else:
-           new_url = tuple([''])
+            new_url = tuple([''])
 
         return Network(), new_url

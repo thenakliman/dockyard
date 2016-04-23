@@ -1,5 +1,6 @@
 from oslo_config import cfg
 
+
 class Cluster(object):
     def __init__(self):
         pass
@@ -8,7 +9,7 @@ class Cluster(object):
         pass
 
     def unregister(self, cluster_id, host_ip):
-        pass 
+        pass
 
     def get_hosts(self):
         return cfg.CONF.membership.hosts

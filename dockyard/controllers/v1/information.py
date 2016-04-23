@@ -1,21 +1,22 @@
 from pecan import expose
-from pecan import rest
 
 from dockyard.common import base
-from dockyard.common.information  import information
+from dockyard.common.information import information
 
-class Information(rest.RestController):
+
+class Information(object):
     def __init__(self):
         self.information = information.Information()
 
     @expose()
-    def get(self):
+    def info(self):
         return self.information.info()
 
-class Version(rest.RestController):
+
+class Version(object):
     def __init__(self):
         self.information = information.Version()
 
     @expose()
-    def get(self):
+    def version(self):
         return self.information.version()

@@ -1,6 +1,7 @@
 from pecan import expose, abort, request
 
-from dockyard.common.container import container 
+from dockyard.common.container import container
+
 
 class Container(object):
     def __init__(self):
@@ -62,7 +63,7 @@ class Container(object):
     def logs(self, _id):
         query_params = request.query_string
         return self.container.logs(_id, query_params)
-    	
+
     @expose(generic=True)
     def start(self):
         abort(404)
@@ -104,7 +105,7 @@ class Container(object):
 
     @exe.when(method="POST")
     def exec_POST(self, _id):
-        return self.container.exe(_id) 
+        return self.container.exe(_id)
 
     @expose(generic=True)
     def attach(self):
@@ -202,9 +203,9 @@ class ContainerController(object):
         if args:
             new_url.append(args)
 
-        if new_url:        
-           new_url = tuple(new_url)
+        if new_url:
+            new_url = tuple(new_url)
         else:
-           new_url = tuple([''])  
+            new_url = tuple([''])
 
         return Container(), new_url

@@ -1,6 +1,7 @@
 from dockyard.common import base, link
 from dockyard.common import utils
 
+
 class Information(object):
     def __init__(self):
         self.rest_client = base.RESTClient()
@@ -10,6 +11,7 @@ class Information(object):
         ln = link.make_url(host=host, protocol='http', url='/info')
         return self.rest_client.GET(ln).data
 
+
 class Version(object):
     def __init__(self):
         self.rest_client = base.RESTClient()
@@ -18,4 +20,3 @@ class Version(object):
         host = utils.get_host()
         ln = link.make_url(host=host, protocol='http', url='/version')
         return self.rest_client.GET(ln).data
-

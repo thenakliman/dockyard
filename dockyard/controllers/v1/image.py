@@ -2,12 +2,13 @@ from pecan import expose, route, abort
 
 from dockyard.common.image import image
 
+
 class Image(object):
     def __init__(self):
         self.image = image.Image()
         super(Image, self).__init__()
 
-    @expose() 
+    @expose()
     def push(self, _id):
         return self.image.push(_id)
 
@@ -55,14 +56,15 @@ class Image(object):
     def build_POST(self, **kwargs):
         return self.image.build(kwargs).data
 
+
 class ImageController(object):
     def __init__(self):
         pass
 
     @expose()
     def _lookup(self, _id, op=None):
-        if op != None:
+        if op is not None:
             new_url = (op, _id)
         else:
             new_url = tuple([_id])
-        return Image(), new_url;
+        return Image(), new_url

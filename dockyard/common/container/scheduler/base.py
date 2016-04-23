@@ -7,7 +7,7 @@ class Scheduler(object):
         """This method returns host information to launch
            container.
 
-           It expects specification of docker container and 
+           It expects specification of docker container and
            interact with membership managment protocol to
            find the host to run a container.
 

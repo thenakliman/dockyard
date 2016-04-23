@@ -7,11 +7,12 @@ from dockyard.controllers.v1 import cluster
 from pecan import rest
 from pecan import expose
 
+
 class Controller(rest.RestController):
     info = information.Information()
     version = information.Version()
     containers = container.ContainerController()
     images = image.ImageController()
     networks = network.NetworkController()
-    volumes = volume.VolumeController() 
+    volumes = volume.VolumeController()
     clusters = cluster.ClusterController()

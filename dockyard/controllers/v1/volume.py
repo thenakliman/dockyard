@@ -1,6 +1,7 @@
-from pecan import expose 
+from pecan import expose
 
 from dockyard.common.volume import volume
+
 
 class Volume(object):
     def __init__(self):
@@ -13,7 +14,7 @@ class Volume(object):
     @index.when(method='DELETE')
     def index_DELETE(self, name):
         return self.volume.delete(name)
-   
+
     @expose(generic=True)
     def create(self):
         abort(404)
@@ -22,18 +23,19 @@ class Volume(object):
     def _create(self, **kwargs):
         return self.volume.create(kwargs)
 
+
 class VolumeController(object):
     def __init__(self):
         pass
 
     @expose()
     def _lookup(self, op=None):
-        new_url = [''] 
+        new_url = ['']
         if op:
             new_url.append(op)
 
-        if new_url:        
-           new_url = tuple(new_url)
+        if new_url:
+            new_url = tuple(new_url)
         else:
-           new_url = tuple([''])  
+            new_url = tuple([''])
         return Volume(), new_url

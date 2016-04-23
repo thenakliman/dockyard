@@ -2,6 +2,7 @@ import json
 from dockyard.common import base, link
 from dockyard.common import utils
 
+
 class Volume(object):
     def __init__(self):
         self.rest_client = base.RESTClient()
@@ -18,5 +19,5 @@ class Volume(object):
 
     def create(self, data):
         url = '/volumes/create'
-        body = json.dumps(data) 
+        body = json.dumps(data)
         return utils.dispatch_post_request(url, 'http', body=body).data
