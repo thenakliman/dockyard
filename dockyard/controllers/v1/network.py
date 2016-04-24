@@ -20,7 +20,7 @@ class Network(object):
         abort(404)
 
     @connect.when(method='POST')
-    def _connect(self, _id, **kwargs):
+    def connect_(self, _id, **kwargs):
         return self.network.connect(_id, kwargs)
 
     @expose(generic=True)
@@ -28,7 +28,7 @@ class Network(object):
         abort(404)
 
     @disconnect.when(method='POST')
-    def _disconnect(self, _id, **kwargs):
+    def disconnect_(self, _id, **kwargs):
         return self.network.disconnect(_id, kwargs)
 
 

@@ -21,7 +21,7 @@ class Cluster(object):
         abort(404)
 
     @unregister.when(method="DELETE")
-    def unregister_POST(self, cluster_id, host_ip):
+    def unregister_DELETE(self, cluster_id, host_ip):
         return self.cluster.unregister(cluster_id, host_ip)
 
 

@@ -20,7 +20,7 @@ class Container(object):
         abort(404)
 
     @resize.when(method="POST")
-    def resize_(self, _id, **kwargs):
+    def resize_POST(self, _id, **kwargs):
         return self.container.resize(_id, **kwargs)
 
     @expose()
@@ -59,7 +59,7 @@ class Container(object):
     def copy_POST(self, _id):
         return self.container.copy(_id)
 
-    @expose(generic=True)
+    @expose()
     def logs(self, _id):
         query_params = request.query_string
         return self.container.logs(_id, query_params)

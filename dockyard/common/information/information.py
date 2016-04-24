@@ -1,22 +1,24 @@
 from dockyard.common import base, link
-from dockyard.common import utils
+from dockyard.common import utils, url
 
 
 class Information(object):
+    base_url = '/info'
+
     def __init__(self):
-        self.rest_client = base.RESTClient()
+        self.url = url.URL(self.base_url)
 
     def info(self):
-        host = utils.get_host()
-        ln = link.make_url(host=host, protocol='http', url='/info')
-        return self.rest_client.GET(ln).data
+        url_ = self.url.make_url()
+        return utils.dispatch_get_request(url_)
 
 
 class Version(object):
+    base_url = '/version'
+
     def __init__(self):
-        self.rest_client = base.RESTClient()
+        self.url = url.URL(self.base_url)
 
     def version(self):
-        host = utils.get_host()
-        ln = link.make_url(host=host, protocol='http', url='/version')
-        return self.rest_client.GET(ln).data
+        url_ = self.url.make_url()
+        return utils.dispatch_get_request(url_)

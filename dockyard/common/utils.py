@@ -1,11 +1,25 @@
+import importlib
 from oslo_config import cfg
-
-from dockyard.common import base, link
-from dockyard.common.container.scheduler.round_robin import RoundRobinScheduler
-
 from urllib3 import PoolManager
 
-rest_client = base.RESTClient()
+from dockyard.common import base, link
+
+SCHEDULER_OPT = [
+    cfg.StrOpt('scheduler',
+                default='round_robin.RoundRobinScheduler',
+                help='Scheduler for the dockyard.'),
+]
+
+CONF = cfg.CONF
+CONF.register_opts(SCHEDULER_OPT, group='default')
+
+# Fetch scheduler defined in the configuration file and load it.
+scheduler_info = CONF.default.scheduler
+scheduler_loc = 'dockyard.common.container.scheduler'
+scheduler_info = (('%s.%s') % (scheduler_loc, scheduler_info))
+module_name, class_name = scheduler_info.rsplit(".", 1)
+class_ = getattr(importlib.import_module(module_name), class_name)
+scheduler = class_()
 
 
 def get_config(group, option):
@@ -14,10 +28,10 @@ def get_config(group, option):
 
 
 def get_host():
-    return RoundRobinScheduler().get_host()
+    return scheduler.get_host()
 
 
-def get_link(url, protocol):
+def get_link(url, protocol='http'):
     host = get_host()
     return link.make_url(host=host, protocol=protocol, url=url)
 
@@ -28,9 +42,8 @@ def dispatch_get_request(url, protocol='http', query_params=None):
 
     if query_params:
         query = link.make_query_url(query_params)
-        ln = ln + '?' + query
+        ln = (('%s?%s') % (ln, query))
 
-    #return rest_client.GET(ln).data
     return pool.urlopen('GET', url=ln).data
 
 
@@ -39,7 +52,7 @@ def dispatch_post_request(url, protocol='http', body=None, query_params=None):
 
     if query_params:
         query = link.make_query_url(query_params)
-        ln = ln + '?' + query
+        ln = (('%s?%s') % (ln, query))
 
     return dispatch_post_req(url=ln, post_params=query_params, body=body).data
 
@@ -49,7 +62,7 @@ def dispatch_put_request(url, protocol='http', body=None, query_params=None):
 
     if query_params:
         query = link.make_query_url(query_params)
-        ln = ln + '?' + query
+        ln = (('%s?%s') % (ln, query))
 
     return dispatch_put_req(url=ln, post_params=query_params, body=body).data
 
@@ -58,7 +71,6 @@ def dispatch_delete_request(url, protocol='http', query_params=None):
     pool = PoolManager()
     ln = get_link(url, protocol)
     return pool.urlopen('DELETE', url=ln)
-    #return rest_client.DELETE(ln).data
 
 
 def dispatch_post_req(url, headers=None, body=None, post_params=None):

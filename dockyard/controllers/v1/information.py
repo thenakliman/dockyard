@@ -1,6 +1,5 @@
 from pecan import expose
 
-from dockyard.common import base
 from dockyard.common.information import information
 
 
@@ -9,7 +8,7 @@ class Information(object):
         self.information = information.Information()
 
     @expose()
-    def info(self):
+    def index(self):
         return self.information.info()
 
 
@@ -18,5 +17,5 @@ class Version(object):
         self.information = information.Version()
 
     @expose()
-    def version(self):
+    def index(self):
         return self.information.version()
