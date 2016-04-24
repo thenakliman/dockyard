@@ -1,1 +1,3 @@
-
+oslo.log
+oslo.config
+pecan
