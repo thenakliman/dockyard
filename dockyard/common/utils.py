@@ -8,6 +8,9 @@ SCHEDULER_OPT = [
     cfg.StrOpt('scheduler',
                 default='round_robin.RoundRobinScheduler',
                 help='Scheduler for the dockyard.'),
+    cfg.StrOpt('agent',
+                default='master',
+                help='Tags to be used.')
 ]
 
 CONF = cfg.CONF
