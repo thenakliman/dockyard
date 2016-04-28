@@ -28,7 +28,7 @@ scheduler = class_()
 
 MEMBERSHIP_OPT = [
     cfg.StrOpt('membership',
-                default='consul_driver.Consul',
+                default='consul.consul_driver.Consul',
                 help='Scheduler for the dockyard.'),
 ]
 
@@ -36,6 +36,7 @@ CONF.register_opts(MEMBERSHIP_OPT, group='default')
 
 # Fetch scheduler defined in the configuration file and load it.
 membership_info = CONF.default.membership
+
 # May be this path can be specified in the configuration file.
 membership_loc = 'dockyard.common.membership'
 membership_info = (('%s.%s') % (membership_loc, membership_info))
@@ -51,13 +52,13 @@ def get_config(group, option):
 
 
 def get_host():
-#    print membership.get_all_hosts()
-    return scheduler.get_host()
+    hosts = membership.get_all_hosts()
+    return scheduler.get_host(hosts=hosts)
 
 
 def get_link(url, protocol='http'):
     host = get_host()
-    return link.make_url(host=host, protocol=protocol, url=url)
+    return link.make_url(host=host['host'], port=host['port'], url=url)
 
 
 def dispatch_get_request(url, protocol='http', query_params=None):
