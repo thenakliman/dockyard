@@ -66,10 +66,10 @@ class LinuxBridgeManager(object):
         self.if_manager.move_to_namespace(if_name, net_ns_fd)
 
     def addr(self, address, mask, broadcast, net_ns_fd):
-        self.if_manager.addr(address, mask, broadcast, net_ns_fd)
+        self.if_manager.addr.add(address, mask, broadcast, net_ns_fd)
 
-    def change_state(self, if_name, state='up', net_ns_fd=None):
-        self.if_manager.addr(if_name, state)
+    def change_state(self, idx, state='up', net_ns_fd=None):
+        self.if_manager.change_state(if_name=idx, state=state, net_ns_fd=net_ns_fd)
 
     def get_index(self, if_name):
-        self.if_manager.get_index(if_name)
+        return self.if_manager.get_index(if_name)

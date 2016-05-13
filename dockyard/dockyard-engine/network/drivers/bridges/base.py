@@ -74,7 +74,7 @@ class Addr(object):
 
 
 class Link(object):
-    __states = ['up', 'down']
+    allowed_states = ['up', 'down']
 
     def __init__(self):
         self.ipr = IPRoute()
@@ -113,10 +113,10 @@ class InterfaceManager(object):
         self.link = Link()
         self.addr = Addr()
 
-    def move_to_namespace(self, if_name, net_ns_fd):
+    def move_to_namespace(self, idx, net_ns_fd):
         """Moves interface to the namspace.
         """
-        idx = self._get_index(if_name)
+        #idx = self.get_index(if_name)
         try:
             self.link.set('set', index=idx,
                           net_ns_fd=net_ns_fd)
@@ -151,9 +151,9 @@ class InterfaceManager(object):
     def change_state(self, if_name, state='up', net_ns_fd=None):
         """Brings interface ups.
         """
-
-        if state not in self.__states:
-            msg = ("States has to be among %s" % (self.__states))
+        print state
+        if state not in self.link.allowed_states:
+            msg = ("States has to be among %s" % (self.link.allowed_states))
             raise InvalidState(msg)
 
         idx = self.get_index(if_name)
