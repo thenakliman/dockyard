@@ -4,17 +4,18 @@
 
 import abc
 from network_driver_exceptions import (
-    AlreadyInNamespace,
-    FailedToMoveInterface,
+    AlreadyInNamespace, FailedToMoveInterface,
     InterfaceNotFound,
     InvalidState,
     NamespaceNotFound,
     UnableToAssignIP,
     UnableToChangeState) 
-from pyroute2 import IPRoute
+
+from pyroute2 import IPDB, NetNS
 from namespace import DockyardNamespace
 
-
+# make sure this files interfaces are updated as per
+# changes.
 class BridgeManager(object):
     def __init__(self):
         pass
@@ -43,54 +44,115 @@ class BridgeManager(object):
     def get_index(self, if_name):
         pass
 
+class IPDBManager(object):
+    def __init__(self):
+        pass
+
+    def open_ipdb(self, net_ns_fd=None):
+        self.ns = None
+
+        if net_ns_fd:
+            self.ns = NetNS(net_ns_fd) 
+            ipdb = IPDB(nl=self.ns)
+        else:
+            ipdb = IPDB()
+
+        return ipdb
+    
+
+    def close_ipdb(self, ipdb):
+        if self.ns:
+            self.ns.close()
+        
+        ipdb.commit()
+        ipdb.release()
+
 
 class Addr(object):
     def __init__(self):
-        self.ipr = IPRoute()
+        self.ipdb_manager = IPDBManager()
 
-    def add(self, command, index=None, address=None, mask=None, net_ns_fd=None):
-        print command, index, address, mask, net_ns_fd
-        self.ipr.addr(command, index=index,
-                      address=address, mask=mask,
-                      net_ns_fd=net_ns_fd)
+    def add(self, ifname=None, address=None,
+            mask=None, net_ns_fd=None):
+        """Add ip address to the interface in namespace or outside
+           the name space.
+        """
+        print ifname, address, mask, net_ns_fd
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd)
+
+        if address:
+            address = ("%s/%d" % (address, mask))
+        print address
+        with ipdb.interfaces[ifname] as interface:
+            if address:
+                interface.add_ip(address)
+
+        self.ipdb_manager.close_ipdb(ipdb)
+
+    def route(self):
+        pass
 
 
 class Link(object):
     allowed_states = ['up', 'down']
 
     def __init__(self):
-        self.ipr = IPRoute()
+        self.ipdb_manager = IPDBManager()
 
-    def add(self, command, ifname, peer, kind='veth'):
+    def create(self, ifname, peer, kind='veth', net_ns_fd=None):
         """Create link.
         """
-        self.ipr.link(command, 
-                      ifname=ifname,
-                      kind=kind,
-                      peer=peer) 
-
-    # Use decorator to convert net_ns_fd to netns_name
-    # currently applying jugad
-    def set(self, command,
-            index=None, net_ns_fd=None,
-            state=None, master=None):
-        """Handles links.
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
+        ipdb.create(ifname=ifname, kind=kind, peer=peer)
+        self.ipdb_manager.close_ipdb(ipdb)
+        
+    def move_to_namespace(self, ifname, net_ns_fd):
+        """Move an interface to the namespace.
         """
-        if state:
-            self.ipr.link(command,
-                          index=index,
-                          net_ns_fd = net_ns_fd,
-                          state=state)
-        else:
-            self.ipr.link(command,
-                          index=index,
-                          net_ns_fd = net_ns_fd,
-                          master=master)
+        ipdb = self.ipdb_manager.open_ipdb() 
+        with ipdb.interfaces[ifname] as interface:
+            interface.net_ns_fd = net_ns_fd
 
-    def lookup(self, ifname):
+        self.ipdb_manager.close_ipdb(ipdb)
+
+    def set_state(self, ifname, net_ns_fd=None, state=None):
+        """Set state of the interface up/down in the namespace.
+        """
+
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
+        with ipdb.interfaces[ifname] as interface:
+            getattr(interface, state)()
+        
+        self.ipdb_manager.close_ipdb(ipdb)
+        
+    def get_ifs(self, net_ns_fd=None):
         """Look up all the interfaces.
         """
-        return self.ipr.link_lookup(ifname=ifname)
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
+        ifs = [x for x in ipdb.interfaces if isinstance(x, str)]
+        self.ipdb_manager.close_ipdb(ipdb)
+        return ifs
+
+    def does_if_exist(self, ifname, net_ns_fd=None):
+        """This method checks whether a interface is in the
+           namespace.
+
+           ifname: interface name of the network interface
+           net_ns_fd: Namespace file descirptor.
+ 
+           It returns True or False, depending on whether interface
+           is in namespace or not.
+        """
+
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
+        try:
+            ipdb.interfaces[ifname]
+        except:
+            return False
+        else:
+            self.ipdb_manager.close_ipdb(ipdb)
+
+        return True
 
 
 class InterfaceManager(object):
@@ -98,25 +160,6 @@ class InterfaceManager(object):
         self.link = Link()
         self.addr = Addr()
         self.netns = DockyardNamespace()
-
-    def _does_if_exist(self, idx):
-        """This method checks whether a interface is in the
-           namespace.
-
-           idx: index of the network interface
-           net_ns_fd: Namespace file descirptor.
- 
-           It returns True or False, depending on whether interface
-           is in namespace or not.
-        """
-
-        ifs = self.link.ipr.get_links() 
-        ifs_idx = [x['index'] for x in ifs]
-
-        if idx not in ifs_idx:
-            return True
-        else:
-            return False
 
     def _does_ns_exist(self, net_ns_fd):
         return self.netns.does_exist(net_ns_fd)
@@ -136,14 +179,14 @@ class InterfaceManager(object):
                 msg = ("%s Namespace does not exist" % (idx))
                 raise NamespaceNotFound(msg)
             
-        #try:
-        netns_name = self.netns.get_netns_name(net_ns_fd)
-        self.link.set('set', index=idx,
-                      net_ns_fd=netns_name)
-        #except:
-        #    raise FailedToMoveInterface()
+        try:
+           netns_name = self.netns.get_netns_name(net_ns_fd)
+           self.link.move_to_namespace(ifname=ifname,
+                                       net_ns_fd=netns_name)
+        except:
+            raise FailedToMoveInterface()
 
-    def addr(self, idx, address, mask, broadcast, net_ns_fd):
+    def addr(self, ifname, address, mask, broadcast, net_ns_fd):
         """Assign ip address
            idx: Device index
            address: IPv4 or IPv6 address
@@ -156,11 +199,11 @@ class InterfaceManager(object):
             try:
                 self.netns.attach_namespace(net_ns_fd)
             except:
-                msg = ("%s Namespace does not exist" % (idx))
+                msg = ("%s Namespace does not exist" % (net_ns_fd))
                 raise NamespaceNotFound(msg)
 
         try:
-            self.addr.add('add', idx,
+            self.addr.add(ifname=ifname,
                           address=address,
                           netmask=mask,
                           broadcast=broadcast,
@@ -168,17 +211,7 @@ class InterfaceManager(object):
         except:
             raise UnableToAssignIP()
       
-    def get_index(self, if_name):
-        """Get index of the bridge.
-        """
-        try:
-            index = self.link.lookup(ifname=if_name)[0]
-        except:
-            raise InterfaceNotFound()
-       
-        return index
-
-    def change_state(self, if_idx, state='up', net_ns_fd=None):
+    def change_state(self, if_name, state='up', net_ns_fd=None):
         """Brings interface ups.
         """
         if state not in self.link.allowed_states:
@@ -187,7 +220,7 @@ class InterfaceManager(object):
 
         try:
             netns_name = self.netns.get_netns_name(net_ns_fd)
-            self.link.set(command="set", state=state,
-                          index=if_idx, net_ns_fd=netns_name)
+            self.link.set_state(state=state, ifname=if_name,
+                                net_ns_fd=netns_name)
         except:
             raise  UnableToChangeState()
