@@ -1,5 +1,7 @@
 from pyroute2 import IPRoute
+
 from base import InterfaceManager
+from network_driver_exceptions import InsufficientInfo 
 
 
 class LinuxBridgeManager(object):
@@ -51,7 +53,6 @@ class LinuxBridgeManager(object):
             # A proper exception must be thrown here to inform kind of problem
             # encountered 
             print e 
-            return False
 
         return {'ext_if': ext_if, 'int_if': int_if}
 
@@ -65,8 +66,8 @@ class LinuxBridgeManager(object):
     def move_to_namespace(self, if_name, net_ns_fd):
         self.if_manager.move_to_namespace(if_name, net_ns_fd)
 
-    def addr(self, address, mask, broadcast, net_ns_fd):
-        self.if_manager.addr.add(address, mask, broadcast, net_ns_fd)
+    def addr(self, idx, address, mask, broadcast, net_ns_fd):
+        self.if_manager.addr.add(idx, address, mask, broadcast, net_ns_fd)
 
     def change_state(self, idx, state='up', net_ns_fd=None):
         self.if_manager.change_state(if_name=idx, state=state, net_ns_fd=net_ns_fd)
