@@ -1,7 +1,9 @@
 from pyroute2 import IPRoute
 
 from base import InterfaceManager
-from network_driver_exceptions import InsufficientInfo 
+from network_driver_exceptions import (
+    InsufficientInfo,
+    UnableToCreateInterface)
 
 
 class LinuxBridgeManager(object):
@@ -49,28 +51,27 @@ class LinuxBridgeManager(object):
                         ifname=ext_if,
                         kind=kind,
                         peer=int_if) 
-        except Exception as e:
-            # A proper exception must be thrown here to inform kind of problem
-            # encountered 
-            print e 
+        except:
+            msg = ("Unable to create %s interface of %s kind" % (ifname, kind))
+            raise UnableToCreateInterface(msg)
 
         return {'ext_if': ext_if, 'int_if': int_if}
 
-    def attach_if(self, if_ext_idx, master_idx):
+    def attach_if(self, if_ext_idx, master_if_name):
         """Attach interface to bridges.
         """
         # Define exception that unable to attach UnableToAttach
         self.ln.link('set', index=if_ext_idx,
-                     master=master_idx)
+                     master=master_if_name)
 
     def move_to_namespace(self, if_name, net_ns_fd):
         self.if_manager.move_to_namespace(if_name, net_ns_fd)
 
-    def addr(self, idx, address, mask, broadcast, net_ns_fd):
-        self.if_manager.addr.add(idx, address, mask, broadcast, net_ns_fd)
+    def addr(self, if_name, address, mask, broadcast, net_ns_fd):
+        self.if_manager.addr.add(if_name, address, mask, broadcast, net_ns_fd)
 
-    def change_state(self, idx, state='up', net_ns_fd=None):
-        self.if_manager.change_state(if_name=idx, state=state, net_ns_fd=net_ns_fd)
+    def change_state(self, if_name, state='up', net_ns_fd=None):
+        self.if_manager.change_state(if_name=if_name, state=state, net_ns_fd=net_ns_fd)
 
     def get_index(self, if_name):
         return self.if_manager.get_index(if_name)

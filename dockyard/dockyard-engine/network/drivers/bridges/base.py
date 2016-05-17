@@ -77,12 +77,11 @@ class Addr(object):
         """Add ip address to the interface in namespace or outside
            the name space.
         """
-        print ifname, address, mask, net_ns_fd
         ipdb = self.ipdb_manager.open_ipdb(net_ns_fd)
 
         if address:
             address = ("%s/%d" % (address, mask))
-        print address
+
         with ipdb.interfaces[ifname] as interface:
             if address:
                 interface.add_ip(address)
@@ -164,29 +163,29 @@ class InterfaceManager(object):
     def _does_ns_exist(self, net_ns_fd):
         return self.netns.does_exist(net_ns_fd)
 
-    def move_to_namespace(self, idx, net_ns_fd):
+    def move_to_namespace(self, if_name, net_ns_fd):
         """Moves interface to the namspace.
         """
 
-        if self._does_if_exist(idx):
-            msg = ("%s interface does not exist" % (idx))
+        if self._does_if_exist(if_name):
+            msg = ("%s interface does not exist" % (if_name))
             raise InterfaceNotFound(msg)
 
         if not self._does_ns_exist(net_ns_fd):
             try:
                 self.netns.attach_namespace(net_ns_fd)
             except:
-                msg = ("%s Namespace does not exist" % (idx))
+                msg = ("%s Namespace does not exist" % (if_name))
                 raise NamespaceNotFound(msg)
             
         try:
            netns_name = self.netns.get_netns_name(net_ns_fd)
-           self.link.move_to_namespace(ifname=ifname,
+           self.link.move_to_namespace(if_name=if_name,
                                        net_ns_fd=netns_name)
         except:
             raise FailedToMoveInterface()
 
-    def addr(self, ifname, address, mask, broadcast, net_ns_fd):
+    def addr(self, if_name, address, mask, broadcast, net_ns_fd):
         """Assign ip address
            idx: Device index
            address: IPv4 or IPv6 address
@@ -203,7 +202,7 @@ class InterfaceManager(object):
                 raise NamespaceNotFound(msg)
 
         try:
-            self.addr.add(ifname=ifname,
+            self.addr.add(if_name=if_name,
                           address=address,
                           netmask=mask,
                           broadcast=broadcast,
@@ -224,3 +223,4 @@ class InterfaceManager(object):
                                 net_ns_fd=netns_name)
         except:
             raise  UnableToChangeState()
+
