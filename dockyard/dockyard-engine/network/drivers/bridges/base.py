@@ -73,11 +73,11 @@ class Addr(object):
         self.ipdb_manager = IPDBManager()
 
     def add(self, ifname=None, address=None,
-            mask=None, net_ns_fd=None):
+            mask=None, broadcast=None, net_ns_fd=None):
         """Add ip address to the interface in namespace or outside
            the name space.
         """
-        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd)
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd=net_ns_fd)
 
         if address:
             address = ("%s/%d" % (address, mask))
@@ -87,9 +87,6 @@ class Addr(object):
                 interface.add_ip(address)
 
         self.ipdb_manager.close_ipdb(ipdb)
-
-    def route(self):
-        pass
 
 
 class Link(object):
@@ -119,6 +116,7 @@ class Link(object):
         """
 
         ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
+        print ifname, net_ns_fd, state
         with ipdb.interfaces[ifname] as interface:
             getattr(interface, state)()
         
@@ -154,6 +152,25 @@ class Link(object):
         return True
 
 
+class IPManager(object):
+    def __init__(self):
+        """Manages IP manager.
+        """
+        self.netns = DockyardNamespace()
+        self.addr = Addr()
+
+    def assign_ip(self, ifname, address, mask, broadcast=None, net_ns_fd=None):
+        """Assign ip address.
+           :ifname: Assign ip address to this interface.
+           :address: Assign this ip address.
+           :mask: for the network
+           :broadcast: broadcast address for the network.
+           :net_ns_fd: network file descriptor or namespace.
+        """
+        netns_name = self.netns.get_netns_name(psid=net_ns_fd)
+        self.addr.add(ifname, address, mask, broadcast, net_ns_fd=netns_name)
+
+
 class InterfaceManager(object):
     def __init__(self):
         self.link = Link()
@@ -163,11 +180,14 @@ class InterfaceManager(object):
     def _does_ns_exist(self, net_ns_fd):
         return self.netns.does_exist(net_ns_fd)
 
+    def _does_if_exist(self, if_name):
+        return self.link.does_if_exist(if_name)
+
     def move_to_namespace(self, if_name, net_ns_fd):
         """Moves interface to the namspace.
         """
 
-        if self._does_if_exist(if_name):
+        if not self._does_if_exist(if_name):
             msg = ("%s interface does not exist" % (if_name))
             raise InterfaceNotFound(msg)
 
@@ -179,8 +199,8 @@ class InterfaceManager(object):
                 raise NamespaceNotFound(msg)
             
         try:
-           netns_name = self.netns.get_netns_name(net_ns_fd)
-           self.link.move_to_namespace(if_name=if_name,
+            netns_name = self.netns.get_netns_name(net_ns_fd)
+            self.link.move_to_namespace(ifname=if_name,
                                        net_ns_fd=netns_name)
         except:
             raise FailedToMoveInterface()
@@ -218,7 +238,7 @@ class InterfaceManager(object):
             raise InvalidState(msg)
 
         try:
-            netns_name = self.netns.get_netns_name(net_ns_fd)
+            netns_name = self.netns.get_netns_name(psid=net_ns_fd)
             self.link.set_state(state=state, ifname=if_name,
                                 net_ns_fd=netns_name)
         except:

@@ -22,11 +22,11 @@ class DockyardNamespace(Namespace):
            dst: It is the location, where new file descriptor will be
                 created.
         """
-        #try:
-        self.symlink.create(src, dst)
-        #except:
-        #    msg = ("Unable to attach to docker namespace")
-        #    raise UnableToAttachNamespace(msg)
+        try:
+            self.symlink.create(src, dst)
+        except:
+            msg = ("Unable to attach to docker namespace")
+            raise UnableToAttachNamespace(msg)
      
     def _get_src_netns(self, psid):
         """This method return the orignial network namespace for

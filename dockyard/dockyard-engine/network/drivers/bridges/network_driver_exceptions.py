@@ -37,3 +37,6 @@ class UnableToChangeState(BridgeDriversExceptions):
 
 class InvalidState(BridgeDriversExceptions):
     pass
+
+class UnableToCreateInterface(BridgeDriversExceptions):
+    pass
