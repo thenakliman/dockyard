@@ -6,6 +6,8 @@ class BridgeDriversExceptions(Exception):
 class NamespaceNotFound(BridgeDriversExceptions):
     pass
 
+class UnableToAddRoutes(BridgeDriversExceptions):
+    pass
 
 class UnableToAttachNamespace(BridgeDriversExceptions):
     pass

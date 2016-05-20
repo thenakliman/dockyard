@@ -1,3 +1,6 @@
 =================================================================
 Add known bugs in this file. Select a format to add bugs.
 =================================================================
+1) Add feature of receiving IP address from the DHCP
+2) Add attach interface function attaching interface to the bridge
+3) Method for Communication among docker processes running among cluster hosts
