@@ -1,7 +1,8 @@
 import importlib
 from oslo_config import cfg
-from urllib3 import PoolManager
+from pecan import request as rcvd_req
 
+from base import DockyardURL
 from dockyard.common import base, link
 
 SCHEDULER_OPT = [
@@ -45,6 +46,7 @@ class_ = getattr(importlib.import_module(module_name), class_name)
 membership = class_()
 membership.register()
 
+request = DockyardURL()
 
 def get_config(group, option):
     CONF = cfg.CONF
@@ -52,8 +54,23 @@ def get_config(group, option):
 
 
 def get_host():
-    hosts = membership.get_all_hosts()
-    return scheduler.get_host(hosts=hosts)
+    """This method returns host, for serving the request.
+
+       If this instance of the process is api server then scheduler
+       will be used for scheduling host.
+
+       If this instance of the process is engine then it should direct
+       to docker procss running on local machine and does preprocessing.
+    """
+    try:
+        rcvd_req.headers.environ['Request-Status']
+    except KeyError:
+        hosts = membership.get_all_hosts()
+        host = scheduler.get_host(hosts=hosts)
+    else:
+        host = { 'host': CONF['docker_host'], 'port': CONF['docker_port'] }
+
+    return host
 
 
 def get_link(url, protocol='http'):
@@ -61,15 +78,14 @@ def get_link(url, protocol='http'):
     return link.make_url(host=host['host'], port=host['port'], url=url)
 
 
-def dispatch_get_request(url, protocol='http', query_params=None):
+def dispatch_get_request(url, headers=None, protocol='http', query_params=None):
     ln = get_link(url, protocol)
-    pool = PoolManager()
 
     if query_params:
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return pool.urlopen('GET', url=ln).data
+    return request.send(method='GET', url=ln)
 
 
 def dispatch_post_request(url, protocol='http', body=None, query_params=None):
@@ -79,7 +95,7 @@ def dispatch_post_request(url, protocol='http', body=None, query_params=None):
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return dispatch_post_req(url=ln, post_params=query_params, body=body).data
+    return dispatch_post_req(url=ln, post_params=query_params, body=body)
 
 
 def dispatch_put_request(url, protocol='http', body=None, query_params=None):
@@ -89,24 +105,24 @@ def dispatch_put_request(url, protocol='http', body=None, query_params=None):
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return dispatch_put_req(url=ln, post_params=query_params, body=body).data
+    return dispatch_put_req(url=ln, post_params=query_params, body=body)
 
 
-def dispatch_delete_request(url, protocol='http', query_params=None):
-    pool = PoolManager()
+def dispatch_delete_request(url, headers = None, protocol='http',
+                            query_params=None):
     ln = get_link(url, protocol)
-    return pool.urlopen('DELETE', url=ln)
+    return request.send(method='DELETE', url=ln)
 
 
 def dispatch_post_req(url, headers=None, body=None, post_params=None):
-    pool = PoolManager()
     if not headers:
         headers = {'Content-Type': 'application/json'}
-    return pool.urlopen('POST', url, headers=headers, body=body).data
+
+    return request.send(method='POST', url=url, headers=headers, body=body)
 
 
 def dispatch_put_req(url, headers=None, body=None, post_params=None):
-    pool = PoolManager()
     if not headers:
         headers = {'Content-Type': 'application/x-tar'}
-    return pool.urlopen('PUT', url, headers=headers, body=body).data
+
+    return request.send(method='PUT', url=url, headers=headers, body=body)
