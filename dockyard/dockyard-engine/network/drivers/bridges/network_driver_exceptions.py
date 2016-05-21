@@ -2,8 +2,10 @@
 class BridgeDriversExceptions(Exception):
     pass
 
-
 class NamespaceNotFound(BridgeDriversExceptions):
+    pass
+
+class UnableToAttachPort(BridgeDriversExceptions):
     pass
 
 class UnableToAddRoutes(BridgeDriversExceptions):

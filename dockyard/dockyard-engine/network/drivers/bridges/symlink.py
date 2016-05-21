@@ -17,3 +17,9 @@ class Symlink(object):
         """This method checks whether given path is symlink or not.
         """
         return os.path.islink(path)
+
+    def cleanup(self, path):
+        """Remove the file from a path.
+           :path: Path of the file to remove.
+        """
+        os.remove(path)

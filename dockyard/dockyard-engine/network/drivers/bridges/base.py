@@ -186,6 +186,18 @@ class Link(object):
 
         return True
 
+    def attach_port(self, ifname, bridge, net_ns_fd=None):
+        """This method attach interface to the bridge.
+           :ifname: interface name to attach to the bridge.
+           :bridge: Name of the bridge to which attach interface.
+        """
+        ipdb = self.ipdb_manager.open_ipdb(net_ns_fd=net_ns_fd)
+
+        with ipdb.interfaces[bridge] as br:
+            br.add_port(ipdb.interfaces[ifname])
+
+        self.ipdb_manager.close_ipdb(ipdb)
+
 
 class IPManager(object):
     def __init__(self):
@@ -202,8 +214,8 @@ class IPManager(object):
         if not self._does_ns_exist(psid):
             try:
                 self.netns.attach_namespace(psid)
-            except:
-                msg = ("%s Namespace does not exist" % (psid))
+            except Exception as e:
+                msg = ("%s Namespace does not exist. ERROR: %s" % (psid, e))
                 raise NamespaceNotFound(msg)
 
         return psid
@@ -227,8 +239,11 @@ class IPManager(object):
         try:
             self.addr.add(ifname, address, mask,
                           broadcast, net_ns_fd=netns_name)
-        except:
-            raise UnableToAssignIP()
+        except Exception as e:
+            msg = ("Unable to assign ip %s to %s interface in %s namespace."
+                   "ERROR: %s" % (address, ifname, net_ns_fd, e))
+
+            raise UnableToAssignIP(msg)
 
     def add_routes(self, dst, gateway, oif_name, psid=None, **kwargs):
         """Add routes to the namespace.
@@ -260,9 +275,11 @@ class IPManager(object):
             else:
                 self.addr.routes(oif=oif_idx, dst=dst,
                                  gateway=gateway, **kwargs)
-        except:
-            msg = ("Unable to add route dst=%s, gateway=%s, network=%s "
-                   "%s " % (dst, gateway, netns_name, kwargs)) 
+        except Exception as e:
+            msg = ("Unable to add gateway %s for destination %s in namespace "
+                   "%s for interface %d. ERROR: %s" % (gateway, dst,
+                                                       netns_name, oif_idx, e))
+
             raise UnableToAddRoutes(msg)
 
 
@@ -306,16 +323,19 @@ class InterfaceManager(object):
         if not self._does_ns_exist(psid):
             try:
                 self.netns.attach_namespace(psid)
-            except:
-                msg = ("%s Namespace does not exist" % (ifname))
+            except Exception as e:
+                msg = ("%s Namespace does not exist. ERROR: %s" % (ifname, e))
                 raise NamespaceNotFound(msg)
             
         try:
             netns_name = self.netns.get_netns_name(psid)
             self.link.move_to_namespace(ifname=ifname,
                                         net_ns_fd=netns_name)
-        except:
-            raise FailedToMoveInterface()
+        except Exception as e:
+            msg = ("Failed to move %s interface in %s namespace. ERROR: %s" % (
+                   ifname, netns_name, e))
+
+            raise FailedToMoveInterface(msg)
 
     def change_state(self, ifname, state='up', psid=None):
         """Brings interface ups.
@@ -326,7 +346,9 @@ class InterfaceManager(object):
            :raises InvalidState, UnableToChangeState
         """
         if state not in self.link.allowed_states:
-            msg = ("States has to be among %s" % (self.link.allowed_states))
+            msg = ("States has to be among %s but Received %s state" % (
+                   self.link.allowed_states, state))
+
             raise InvalidState(msg)
 
         if psid:
@@ -337,5 +359,8 @@ class InterfaceManager(object):
         try:
             self.link.set_state(state=state, ifname=ifname,
                                 net_ns_fd=netns_name)
-        except:
-            raise  UnableToChangeState()
+        except Exception as e:
+            msg = ("Unable to change state of %s interface to %s state in "
+                   "%s namespace.ERROR: %s" % (ifname, state, net_ns_fd, e))
+
+            raise  UnableToChangeState(msg)

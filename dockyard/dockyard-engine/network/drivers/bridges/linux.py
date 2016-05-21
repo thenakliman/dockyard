@@ -1,35 +1,33 @@
-from pyroute2 import IPRoute
-
-from base import InterfaceManager, IPManager
+from base import InterfaceManager, IPManager, Link
 from network_driver_exceptions import (
     InsufficientInfo,
+    UnableToAttachPort,
     UnableToCreateInterface)
+from utils import RandomNumber
 
 
 class LinuxBridgeManager(object):
+    MAX_IF_LENGTH = 15
+
     def __init__(self):
-        self.ln = IPRoute()
+        self.link = Link()
         self.if_manager = InterfaceManager()
         self.ip_manager = IPManager()
 
-    def _get_ifname(self, id_, loc, prefix='dockyard'):
+    def _get_ifname(self, prefix='deth'):
         """This method makes name of the interface in the specified format
            for our application.
+
+           Name returned by this method should not be more than 15 length
+           character. 
         """
-
-        if not loc:
-            msg = "Location of the interface is not defined"
-            raise InsufficientInfo(msg)
-
-        if loc == 'external':
-            loc = 'x'
-        elif loc == 'internal':
-            loc = 'i'
-
-        return ('%s-%s-%s' % (prefix, loc, id_)); 
+        
+        rand_num = RandomNumber()
+        id_ = rand_num.get_number(self.MAX_IF_LENGTH - (len(prefix) + 1))
+        return ('%s-%s' % (prefix, id_));
 
 
-    def create_link_pair(self, id_, kind='veth', peer=None):
+    def create_link_pair(self, ifname=None, kind='veth', peer=None):
         """Creates links, one for namespace and other out of namespace.
           
            ifname: Name of the interface. In this application, it will
@@ -42,30 +40,35 @@ class LinuxBridgeManager(object):
                    link and '[kind]-i-[id]' for the namespace link.
         """
 
-        ext_if = self._get_ifname(id_, loc='external')
+        if not ifname:
+            ext_if = self._get_ifname()
+        else:
+            ext_if = ifname
 
         if not peer:
-            int_if = self._get_ifname(id_, loc='internal')
+            int_if = self._get_ifname()
 
         try:
-            self.ln.link('add',
-                        ifname=ext_if,
-                        kind=kind,
-                        peer=int_if) 
-        except:
-            msg = ("Unable to create %s, %s interfaces of %s kind" % (
-                   ext_if, int_if, kind))
+            self.link.create(ifname=ext_if, kind=kind, peer=int_if)
+        except Exception as e:
+            msg = ("Unable to create %s, %s interfaces of %s kind. ERROR: %s"
+                   % (ext_if, int_if, kind, e))
 
             raise UnableToCreateInterface(msg)
 
         return {'ext_if': ext_if, 'int_if': int_if}
 
     # Make This method working
-    def attach_if(self, ifname, br_name):
+    def attach_port(self, ifname, br_name):
         """Attach interface to bridges.
         """
-        self.ln.link('set', index=ifname,
-                     master=br_name)
+        try:
+            self.link.attach_port(ifname=ifname, bridge=br_name)
+        except Exception as e:
+            msg = ("Unable to attach %s interface with %s bridge. ERROR: %s"
+                    % (ifname, bridge, e))
+
+            raise UnableToAttachPort(msg)
 
     def move_to_namespace(self, ifname, psid):
         """move an interface to the docker process namespace.

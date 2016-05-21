@@ -70,3 +70,9 @@ class DockyardNamespace(Namespace):
         """ 
         netns_name = ("dockyard_%d" % (psid))
         return netns_name
+
+    def cleanup(self, psid):
+        """cleanup namespace by removing link to it.
+        """
+        netns_loc = self._get_netns_loc(psid)
+        self.symlink.cleanup(netns_loc) 
