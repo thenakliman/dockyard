@@ -1,7 +1,10 @@
 from base import InterfaceManager, IPManager, Link
+from namespace import DockyardNamespace
+
 from network_driver_exceptions import (
     InsufficientInfo,
     UnableToAttachPort,
+    NamespaceNotFound,
     UnableToCreateInterface)
 from utils import RandomNumber
 
@@ -13,6 +16,7 @@ class LinuxBridgeManager(object):
         self.link = Link()
         self.if_manager = InterfaceManager()
         self.ip_manager = IPManager()
+        self.namespace = DockyardNamespace()
 
     def _get_ifname(self, prefix='deth'):
         """This method makes name of the interface in the specified format
@@ -54,11 +58,10 @@ class LinuxBridgeManager(object):
             msg = ("Unable to create %s, %s interfaces of %s kind. ERROR: %s"
                    % (ext_if, int_if, kind, e))
 
-            raise UnableToCreateInterface(msg)
+            return msg
 
         return {'ext_if': ext_if, 'int_if': int_if}
 
-    # Make This method working
     def attach_port(self, ifname, br_name):
         """Attach interface to bridges.
         """
@@ -112,8 +115,40 @@ class LinuxBridgeManager(object):
            :kwargs: In case of advanced networking, additional parameters
                     might be provided through this option.
         """
+        netns_name = None
+
         if psid:
-            self.if_manager.netns.get_netns_name(psid=psid)
+            netns_name = self.if_manager.netns.get_netns_name(psid=psid)
 
         self.ip_manager.add_routes(oif_name=oif_name, dst=dst, gateway=gateway,
                                    psid=psid, **kwargs)
+
+    def get_ifs(self, psid=None):
+        """This method returns all the network interfaces defined in docker
+           network namespace.
+        """
+        netns_name = None
+
+        if psid:
+            netns_name = self.if_manager.netns.get_netns_name(psid=psid)
+
+        try:
+            self._check_and_attach(psid)
+        except NamespaceNotFound as e:
+            # 404 into the header, which suggest on client side 
+            # about this issue.
+            return ("Namespace %d could not be found. ERROR: %s" % (psid, e))
+
+        return self.link.get_ifs(net_ns_fd=netns_name)
+
+    # This method has been defined in at 3 places, it must be put into
+    # namespace class so that it can be reused at all the places.
+    def _check_and_attach(self, psid):
+        if not self.namespace.does_exist(psid):
+            try:
+                 self.namespace.attach_namespace(psid)
+            except Exception as e:
+                msg = ("%s Namespace does not exist. ERROR: %s" % (psid, e))
+                raise NamespaceNotFound(msg)
+
+        return psid

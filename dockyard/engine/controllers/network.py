@@ -1,24 +1,18 @@
-from oslo_config import cfg
-from pecan import expose, abort, rest
+from pecan import expose, abort, request
+from pecan.rest import RestController
 
+from dockyard.engine.common.network.manager import NetworkManager
 
-# Fetch scheduler defined in the configuration file and load it.
-network_driver_info = CONF.default.network_driver
-# May be this path can be specified in the configuration file.
-network_driver_loc = 'engine.common.network.drivers'
-network_driver_info = (('%s.%s') % (nework_driver_loc, network_driver_info))
-module_name, class_name = scheduler_info.rsplit(".", 1)
-class_ = getattr(importlib.import_module(module_name), class_name)
-network = class_()
-
-
-class Interface(rest.Controller):
+class InterfaceController(RestController):
     def __init__(self):
-        pass
+        self.network = NetworkManager()
 
     @expose()
     def post(self):
-        pass
+        """This method is responsible for creating network interfaces.
+        """
+        body = request.body
+        return self.network.create(body)
        
     @expose()
     def delete(self):
@@ -36,15 +30,14 @@ class Interface(rest.Controller):
     def detach(self):
         pass
 
-    @expose()
-    def get_all(self):
-        pass
+     # created this for testing purpose only
+#    @expose()
+    def get_one(self, psid):
+        """This method returns networks interfaces in a container.
+        """
+        return self.network.get_ifs(psid=psid)
 
-    @expose()
-    def get_one(self):
-        pass
-
-class Routes(rest.Controller):
+class RoutesController(RestController):
     def __init__(self):
         pass
 
@@ -62,7 +55,7 @@ class Routes(rest.Controller):
         pass
 
 
-class IP(rest.Controller)
+class IPController(RestController):
     def __init__(self):
         pass
 
@@ -79,5 +72,27 @@ class IP(rest.Controller)
         pass
 
     @expose()
-    def get_one(self):
+    def get_one(self, psid=None):
+        """This method returns IPs allocated to a container.
+        """
+        pass
+        
+
+class DockyardEngineController(RestController):
+    """Controller for the Engine.
+    """
+
+    """This is the controller for the interface.
+    """
+    interface = InterfaceController()
+
+    """Controller for IPs.
+    """
+    ip = IPController()
+
+    """Controller for routes.
+    """
+    routes = RoutesController()
+
+    def __init__(self):
         pass

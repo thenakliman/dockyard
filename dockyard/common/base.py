@@ -25,7 +25,7 @@ class DockyardURL(URL):
         """This method checks whether this is request for docker engine.
         """
         try:
-            request.environ.headers['Request-Status']
+            request.headers.environ['Request-Status']
         except KeyError:
             status = False
         else:
@@ -42,14 +42,14 @@ class DockyardURL(URL):
            :post_params: post parameters.
            :body: Request body.
         """
-        req_type = self._is_local_request():
+        req_type = self._is_local_request()
         if req_type: 
             preprocess
         else:
             headers = self._add_headers(headers)
         
         data = self.pool.urlopen(method, url, headers=headers, body=body).data
-        post_process
+        # post_process
         return data
 
 
@@ -58,5 +58,8 @@ class DockyardURL(URL):
            Valid values for Request-Status header are Scheduled.
            More values will be added, as per requirements.
         """
+        if not headers:
+            headers = dict()
+
         headers['Request-Status'] = 'Scheduled'
-        returns headers
+        return headers
