@@ -51,6 +51,8 @@ class LinuxBridgeManager(object):
 
         if not peer:
             int_if = self._get_ifname()
+        else:
+            int_if = peer
 
         try:
             self.link.create(ifname=ext_if, kind=kind, peer=int_if)

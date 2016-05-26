@@ -1,6 +1,7 @@
 from pecan import expose, abort, request
 from pecan.rest import RestController
 
+from dockyard.engine.common.utils import str_to_dict
 from dockyard.engine.common.network.manager import NetworkManager
 
 class InterfaceController(RestController):
@@ -11,20 +12,17 @@ class InterfaceController(RestController):
     def post(self):
         """This method is responsible for creating network interfaces.
         """
-        body = request.body
-        return self.network.create(body)
+        kwargs = str_to_dict(request.body)
+        return self.network.create(**kwargs)
        
     @expose()
     def delete(self):
         pass
 
     @expose()
-    def attach(self):
-        pass
-
-    @expose()
-    def move(self):
-        pass
+    def put(self):
+        kwargs = str_to_dict(request.body)
+        return self.network.update(**kwargs)
 
     @expose()
     def detach(self):
@@ -35,6 +33,7 @@ class InterfaceController(RestController):
     def get_one(self, psid):
         """This method returns networks interfaces in a container.
         """
+        psid = int(psid)
         return self.network.get_ifs(psid=psid)
 
 class RoutesController(RestController):
