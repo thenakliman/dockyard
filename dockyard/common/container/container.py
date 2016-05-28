@@ -1,9 +1,12 @@
+from oslo_log import log as logging
+
 from dockyard.common import utils, link
 from dockyard.common import url
 
 import json
 from pecan.core import redirect
 
+LOG = logging.getLogger(__name__)
 
 class Container(object):
     base_url = '/containers'
@@ -13,6 +16,10 @@ class Container(object):
 
     def list(self, name_or_id=None, query_params=None):
         url_ = self.url.make_url(url_='json', id_=name_or_id)
+        msg = ("List containers with url: %s "
+               "query_params: %s" %
+               (url_, query_params))
+        LOG.debug(msg)
         return utils.dispatch_get_request(url_, query_params=query_params)
 
     def changes(self, name_or_id=None):

@@ -1,4 +1,5 @@
 from oslo_config import cfg
+from oslo_log import log as logging
 
 
 class Cluster(object):
@@ -12,4 +13,5 @@ class Cluster(object):
         pass
 
     def get_hosts(self):
+        LOG.debug("Registered hosts: %s" cfg.CONF.membership.hosts)
         return cfg.CONF.membership.hosts
