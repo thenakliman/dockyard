@@ -1,5 +1,5 @@
 from pecan import abort
-from dockyard.common import base, link
+from dockyard.common import link
 from dockyard.common import utils, url
 
 

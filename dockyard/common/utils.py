@@ -1,9 +1,12 @@
 import importlib
 from oslo_config import cfg
+from oslo_log import log as logging
 from pecan import request as rcvd_req
 
 from base import DockyardURL
-from dockyard.common import base, link
+from urllib3 import PoolManager
+
+from dockyard.common import link
 
 SCHEDULER_OPT = [
     cfg.StrOpt('scheduler',
@@ -77,6 +80,16 @@ def get_link(url, protocol='http'):
     host = get_host()
     return link.make_url(host=host['host'], port=host['port'], url=url)
 
+def prepare_logging(argv=None):
+    """
+    log file can be specified as a command line argument
+    with key = log-file
+    """ 
+    if argv is None:
+        argv = []
+    logging.register_options(CONF)
+    CONF(argv[1:], project='dockyard')
+    logging.setup(CONF, 'dockyard')
 
 def dispatch_get_request(url, headers=None, protocol='http', query_params=None):
     ln = get_link(url, protocol)
