@@ -14,7 +14,7 @@ module_name, class_name = network_driver_info.rsplit(".", 1)
 class_ = getattr(importlib.import_module(module_name), class_name)
 
 
-class NetworkManager(object):
+class IFManager(object):
     """This class acts as middleware between drivers and requests.
     """
     def __init__(self):
@@ -75,3 +75,24 @@ class NetworkManager(object):
                                                           state=state)
              
         return json_dump(data)
+
+class IPManager(object):
+    def __init__(self):
+        self.ip = class_()
+
+    def addr(self, ifname, address, mask,
+             psid, broadcast=None):
+        """This method assigns name in the network namespace of container.
+           :params ifname: network interface name
+           :params address: ip address to be assigned 
+           :params mask: netmask for the network
+           :params psid: network namespace for the container.
+           :params broadcast: broadcast address
+
+           :returns: returns.
+        """
+        ips = dict()
+        ips['IP'] = self.ip.addr(ifname=ifname, address=address, mask=mask,
+                                 psid=psid, broadcast=broadcast)
+
+        return json_dump(ips)

@@ -2,11 +2,11 @@ from pecan import expose, abort, request
 from pecan.rest import RestController
 
 from dockyard.engine.common.utils import str_to_dict
-from dockyard.engine.common.network.manager import NetworkManager
+from dockyard.engine.common.network.manager import IFManager, IPManager
 
 class InterfaceController(RestController):
     def __init__(self):
-        self.network = NetworkManager()
+        self.network = IFManager()
 
     @expose()
     def post(self):
@@ -56,18 +56,15 @@ class RoutesController(RestController):
 
 class IPController(RestController):
     def __init__(self):
-        pass
+        self.ip = IPManager()
 
     @expose()
     def put(self):
-        pass
+        kwargs = str_to_dict(request.body)
+        return self.ip.addr(**kwargs)
  
     @expose()
     def delete(self):
-        pass
-
-    @expose()
-    def udpate(self):
         pass
 
     @expose()
