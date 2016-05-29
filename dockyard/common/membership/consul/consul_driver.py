@@ -1,11 +1,13 @@
 import consul
 from oslo_config import cfg
+from oslo_log import log as logging
 
 from dockyard.common.membership.base import Membership
 from dockyard.common import exception
 
 CONF = cfg.CONF
 
+LOG = logging.getLogger(__name__)
 
 class Consul(Membership):
     def __init__(self):
@@ -14,6 +16,7 @@ class Consul(Membership):
     def _register_service(self, name, host, port, tags=None):
         if not name:
             message = ('Service name to use for registering')
+            LOG.exception("Cannot continue, Incomplete info: %s" % message)
             raise exception.IncompleteInfo(message)
 
 #        if not host:
@@ -22,6 +25,7 @@ class Consul(Membership):
  
         if not port:
             message = ('Port number used by the services to listen')
+            LOG.exception("Cannot continue, Incomplete info: %s" % message)
             raise exception.Incompleteinfo(message)
             
 

@@ -1,3 +1,4 @@
+from oslo_log import log as logging
 from base import InterfaceManager, IPManager, Link
 from namespace import DockyardNamespace
 
@@ -8,6 +9,7 @@ from network_driver_exceptions import (
     UnableToCreateInterface)
 from utils import RandomNumber
 
+LOG = logging.getLogger(__name__)
 
 class LinuxBridgeManager(object):
     MAX_IF_LENGTH = 15
@@ -59,6 +61,8 @@ class LinuxBridgeManager(object):
         except Exception as e:
             msg = ("Unable to create %s, %s interfaces of %s kind. ERROR: %s"
                    % (ext_if, int_if, kind, e))
+
+            LOG.exception(msg)
             return msg
 
         return {'ext_if': ext_if, 'int_if': int_if}
@@ -68,10 +72,11 @@ class LinuxBridgeManager(object):
         """
         try:
             self.link.attach_port(ifname=ifname, bridge=br_name)
+            LOG.info("Attached interface: %s to bridge: %s" % (ifname, bridge))
         except Exception as e:
             msg = ("Unable to attach %s interface with %s bridge. ERROR: %s"
                     % (ifname, bridge, e))
-
+            LOG.exception(msg)
             raise UnableToAttachPort(msg)
 
     def move_to_namespace(self, ifname, psid):

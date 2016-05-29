@@ -3,6 +3,8 @@
 # 1) Create Virtual Interface # 2) Moving Virtual Interface into docker namespace # 3) Assign IP address to the interface # 4) Brings up network interface
 
 import abc
+
+from oslo_log import log as logging
 from network_driver_exceptions import (
     AlreadyInNamespace, FailedToMoveInterface,
     InterfaceNotFound,
@@ -15,6 +17,8 @@ from network_driver_exceptions import (
 from pyroute2 import IPDB, NetNS
 from namespace import DockyardNamespace
 
+
+LOG = logging.getLogger(__name__)
 # make sure this files interfaces are updated as per
 # changes.
 class BridgeManager(object):
@@ -216,6 +220,7 @@ class IPManager(object):
                 self.netns.attach_namespace(psid)
             except Exception as e:
                 msg = ("%s Namespace does not exist. ERROR: %s" % (psid, e))
+                LOG.exception(msg)
                 raise NamespaceNotFound(msg)
 
         return psid
@@ -242,6 +247,8 @@ class IPManager(object):
         except Exception as e:
             msg = ("Unable to assign ip %s to %s interface in psid namespace."
                    "ERROR: %s" % (address, ifname, psid, e))
+
+            LOG.exception(msg)
 
             raise UnableToAssignIP(msg)
 
@@ -279,7 +286,7 @@ class IPManager(object):
             msg = ("Unable to add gateway %s for destination %s in namespace "
                    "%s for interface %d. ERROR: %s" % (gateway, dst,
                                                        netns_name, oif_idx, e))
-
+            LOG.exception(msg)
             raise UnableToAddRoutes(msg)
 
 
@@ -325,6 +332,7 @@ class InterfaceManager(object):
                 self.netns.attach_namespace(psid)
             except Exception as e:
                 msg = ("%s Namespace does not exist. ERROR: %s" % (ifname, e))
+                LOG.exception(msg)
                 raise NamespaceNotFound(msg)
             
         try:
@@ -334,7 +342,7 @@ class InterfaceManager(object):
         except Exception as e:
             msg = ("Failed to move %s interface in %s namespace. ERROR: %s" % (
                    ifname, netns_name, e))
-
+            LOG.exception(msg)
             raise FailedToMoveInterface(msg)
 
     def change_state(self, ifname, state='up', psid=None):
@@ -348,7 +356,7 @@ class InterfaceManager(object):
         if state not in self.link.allowed_states:
             msg = ("States has to be among %s but Received %s state" % (
                    self.link.allowed_states, state))
-
+            LOG.exception(msg)
             raise InvalidState(msg)
 
         if psid:
@@ -362,5 +370,5 @@ class InterfaceManager(object):
         except Exception as e:
             msg = ("Unable to change state of %s interface to %s state in "
                    "%s namespace.ERROR: %s" % (ifname, state, net_ns_fd, e))
-
+            LOG.exception(msg)
             raise  UnableToChangeState(msg)

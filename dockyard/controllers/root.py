@@ -1,7 +1,10 @@
-from pecan import expose, rest
+from oslo_log import log as logging
+
+from pecan import expose, rest, request
 
 from dockyard.controllers import v1
 
+LOG = logging.getLogger(__name__)
 
 class RootController(rest.RestController):
 
@@ -27,4 +30,12 @@ class RootController(rest.RestController):
         if args[0] and args[0] not in self._version:
             args = [self._default_version] + args
 
+        if request.body:
+            msg = ("Processing request: url: %(url)s, "
+                   "method: %(method)s, "
+                   "body: %(body)s" %
+                   {'url': request.url,
+                    'method': request.method,
+                    'body': request.body})
+            LOG.debug(msg)
         return super(RootController, self)._route(args)
