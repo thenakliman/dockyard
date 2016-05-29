@@ -1,6 +1,15 @@
 =================================================================
 Add known bugs in this file. Select a format to add bugs.
 =================================================================
-1) Add feature of receiving IP address from the DHCP
-2) Add attach interface function attaching interface to the bridge
-3) Method for Communication among docker processes running among cluster hosts
+1) Add support for different communication mechnism between api server
+   and engine.
+   --> Message queue
+   --> API server itself
+
+2) Create /var/run/netns at the start of the dockyard.
+3) Add database feature to keep data even after reboot.
+4) Add feature to create resource as dockyard start.
+5) Write a single function, which will load modules dynmically by taking
+   information from the configuration file. It is being done many times in
+   the project which will lead to resuability of the code.
+6) Create an API for attaching external network to the docker container

@@ -33,7 +33,7 @@ class IFManager(object):
 
         ifs = dict()
         ifs[psid] = self.network.get_ifs(psid)
-        return json_dump(ifs)
+        return ifs
 
     def create(self, peer=None, ifname=None, kind='veth'):
         """This method creates interfaces in the namespace.
@@ -47,7 +47,7 @@ class IFManager(object):
                    self.network.create_link_pair(ifname=ifname, peer=peer,
                                                  kind=kind)
 
-        return json_dump(ifs_names)
+        return ifs_names
 
     def update(self, ifname, brname=None, psid=None, state=None):
         """This method is responsible for attaching network interface to
@@ -74,7 +74,7 @@ class IFManager(object):
                 data["state"] = self.network.change_state(ifname=ifname, psid=psid,
                                                           state=state)
              
-        return json_dump(data)
+        return data
 
 class IPManager(object):
     def __init__(self):
@@ -92,7 +92,70 @@ class IPManager(object):
            :returns: returns.
         """
         ips = dict()
-        ips['IP'] = self.ip.addr(ifname=ifname, address=address, mask=mask,
-                                 psid=psid, broadcast=broadcast)
+        ips['IP'] = self.ip.addr(ifname=ifname, address=address,
+                                 mask=int(mask), psid=int(psid),
+                                 broadcast=broadcast)
 
-        return json_dump(ips)
+        return ips
+
+class RouteManager(object):
+    def __init__(self):
+        self.route = class_()
+
+    def routes(self, ifname, gateway, psid, dst='default'):
+        """Adds route in the given namespace.
+           :params oif_name: interface name.
+           :params gateway: gateway to be added.
+           :params psid: process id of the docker to which gateway
+                         has to added.
+           :params dst: destinations for the route.
+           
+           :returns: rotue information.
+        """
+        routes = dict()
+        psid = int(psid)
+        routes["routes"] = self.route.add_routes(oif_name=ifname, dst=dst,
+                                                 psid=psid, gateway=gateway)
+
+        return routes
+
+
+class DockyardNetworkManager(object):
+    """It handles all the dockyard networking specific settings.
+    """
+    def __init__(self):
+        """Dockyard networking involve playing around with network interfaces
+           network routes and ip address.
+        """
+        self.ip = IPManager()
+        self.route = RouteManager()
+        self.if_ = IFManager()
+
+    def add_ip(self, ip, gateway, mask, psid):
+        """This method uses RouteManages, IPManager, IFManager to perform
+           required actions.
+          
+           :params ip: IP Address to be assigned to the container.
+           :params gateway: Gateway to be assigned to the container.
+           :params mask: netmask for the network address.
+           :params psid: process id for the docker container to which
+                         this IP has to be assigned.
+
+           :returns: returns information set to the container.
+        """
+        # Create network inerfaces.
+        ifs = self.if_.create()["interface_names"]
+
+        # Move network interfaces to the namespace
+        psid = int(psid)
+        self.if_.update(ifname=ifs["int_if"], psid=psid, state="up")
+
+        # Assign IP address to the container
+        self.ip.addr(ifname=ifs["int_if"], psid=psid, address=ip,
+                      mask=int(mask))
+
+        # Create routes for the newly added interface
+        self.route.routes(ifname=ifs["int_if"], psid=psid, gateway=gateway,
+                          dst='default')
+
+        return "Gathered Information."

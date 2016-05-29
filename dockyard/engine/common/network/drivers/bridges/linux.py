@@ -59,7 +59,6 @@ class LinuxBridgeManager(object):
         except Exception as e:
             msg = ("Unable to create %s, %s interfaces of %s kind. ERROR: %s"
                    % (ext_if, int_if, kind, e))
-
             return msg
 
         return {'ext_if': ext_if, 'int_if': int_if}

@@ -240,8 +240,8 @@ class IPManager(object):
             self.addr.add(ifname, address, mask,
                           broadcast, net_ns_fd=netns_name)
         except Exception as e:
-            msg = ("Unable to assign ip %s to %s interface in %s namespace."
-                   "ERROR: %s" % (address, ifname, net_ns_fd, e))
+            msg = ("Unable to assign ip %s to %s interface in psid namespace."
+                   "ERROR: %s" % (address, ifname, psid, e))
 
             raise UnableToAssignIP(msg)
 
