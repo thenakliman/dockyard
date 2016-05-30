@@ -1,11 +1,13 @@
 import abc
+import importlib
+from oslo_config import cfg
 from pecan import request
 from urllib3 import PoolManager
 
 ENGINE_CLIENT_OPT = [
     cfg.StrOpt('engine_client',
                 default='api_server.api_server.APIServerEngineClient',
-                help='Client to be used for sending request to engine'),
+                help='Client to be used for sending request to engine')
 ]
 
 CONF = cfg.CONF
@@ -16,7 +18,7 @@ engine_client_info = CONF.default.engine_client
 # May be this path can be specified in the configuration file.
 engine_client_loc = 'dockyard.engine_client'
 engine_client_info = (('%s.%s') % (engine_client_loc, engine_client_info))
-module_name, class_name = scheduler_info.rsplit(".", 1)
+module_name, class_name = engine_client_info.rsplit(".", 1)
 class_ = getattr(importlib.import_module(module_name), class_name)
 engine_client = class_()
 

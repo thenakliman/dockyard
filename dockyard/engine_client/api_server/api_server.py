@@ -1,8 +1,9 @@
 # This client will send request to api server, it sends request to API server
 
-from dockyard.engine_client.clients.base import EngineClient
-from dockyard.engine_client.clients.containers import PreProcessor
-from dockyard.engine_client.clients.containers import PostProcessor
+from dockyard.engine_client.base import EngineClient
+from dockyard.engine_client.api_server.container.container import (
+    PreProcessor,
+    PostProcessor)
 
 
 class APIServerEngineClient(EngineClient):

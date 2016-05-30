@@ -4,7 +4,7 @@ from pecan import request
 from dockyard.common import url, utils
 
 
-class Network(object):
+class DockerNetwork(object):
     base_url = '/networks'
 
     def __init__(self):
@@ -32,3 +32,23 @@ class Network(object):
     def delete(self, id_):
         url_ = self.url.make_url(id_=id_)
         return utils.dispatch_delete_request(url=url_)
+
+
+class DockyardNetwork(object):
+    dockyard_base_url = '/dockyard'
+    base_url = '/networks'
+
+    def __init__(self):
+        self.url = url.URL(self.base_url)
+
+    def attach_floatingip(self, id_, **kwargs):
+        """This method attaches floating ip to the containers.
+        """
+        url_ = self.url.make_url(id_=id_, url_='/floatingip')
+        return utils.dispatch_post_request(url=url_)
+
+
+class Network(DockerNetwork, DockyardNetwork):
+    def __init__(self):
+        super(DockerNetwork, self).__init__(self)
+        super(DockyardNetwork, self).__init__(self)

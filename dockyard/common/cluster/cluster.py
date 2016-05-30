@@ -13,5 +13,5 @@ class Cluster(object):
         pass
 
     def get_hosts(self):
-        LOG.debug("Registered hosts: %s" cfg.CONF.membership.hosts)
+        LOG.debug("Registered hosts: %s" % cfg.CONF.membership.hosts)
         return cfg.CONF.membership.hosts

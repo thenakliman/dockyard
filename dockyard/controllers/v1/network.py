@@ -21,7 +21,7 @@ class Network(object):
 
     @connect.when(method='POST')
     def connect_(self, _id, **kwargs):
-        return self.network.connect(_id, kwargs)
+        return self.network.connect(_id, **kwargs)
 
     @expose(generic=True)
     def disconnect(self):
@@ -29,7 +29,15 @@ class Network(object):
 
     @disconnect.when(method='POST')
     def disconnect_(self, _id, **kwargs):
-        return self.network.disconnect(_id, kwargs)
+        return self.network.disconnect(_id, **kwargs)
+
+    @expose(generic=True)
+    def floatingip(self):
+        abort(404)
+
+    @disconnect.when(method='POST')
+    def floating_(self, _id, **kwargs):
+        return self.network.attach_floatingip(_id, **kwargs)
 
 
 class NetworkController(object):
