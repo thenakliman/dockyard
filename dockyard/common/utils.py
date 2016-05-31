@@ -75,9 +75,22 @@ def get_host():
 
     return host
 
+def get_localhost():
+    d = dict()
 
-def get_link(url, protocol='http'):
-    host = get_host()
+    if CONF.default.host == '0.0.0.0':
+        d['host'] = '127.0.0.1'
+    else:
+        d['host'] = CONF.default.host
+
+    d['port'] = CONF.default.port
+    return d
+
+
+def get_link(url, host=None, protocol='http'):
+    if not host:
+        host = get_host()
+
     return link.make_url(host=host['host'], port=host['port'], url=url)
 
 def prepare_logging(argv=None):
@@ -87,6 +100,7 @@ def prepare_logging(argv=None):
     """ 
     if argv is None:
         argv = []
+
     logging.register_options(CONF)
     CONF(argv[1:], project='dockyard')
     logging.setup(CONF, 'dockyard')
@@ -101,8 +115,10 @@ def dispatch_get_request(url, headers=None, protocol='http', query_params=None):
     return request.send(method='GET', url=ln)
 
 
-def dispatch_post_request(url, protocol='http', body=None, query_params=None):
-    ln = get_link(url, protocol)
+def dispatch_post_request(url, host=None, protocol='http',
+                          body=None, query_params=None):
+
+    ln = get_link(host=host, url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
@@ -127,10 +143,11 @@ def dispatch_delete_request(url, headers = None, protocol='http',
     return request.send(method='DELETE', url=ln)
 
 
-def dispatch_post_req(url, headers=None, body=None, post_params=None):
+def dispatch_post_req(url, headers=None, body=None,
+                      post_params=None, host=None):
     if not headers:
         headers = {'Content-Type': 'application/json'}
-
+    
     return request.send(method='POST', url=url, headers=headers, body=body)
 
 

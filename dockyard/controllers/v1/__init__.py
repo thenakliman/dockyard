@@ -8,7 +8,8 @@ from dockyard.controllers.v1 import image
 from dockyard.controllers.v1 import network
 from dockyard.controllers.v1 import volume
 from dockyard.controllers.v1 import cluster
-from dockyard.engine.controllers.network import DockyardEngineController
+from dockyard.engine.controllers.dockyard_controllers import (
+    DockyardEngineController)
 
 
 SERVER_OPT = [

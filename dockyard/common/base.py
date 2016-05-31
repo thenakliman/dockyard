@@ -70,11 +70,11 @@ class DockyardURL(URL):
                                            body=body, headers=headers)
         else:
             headers = self._add_headers(headers)
-        
+        print url        
         data = self.pool.urlopen(method, url, headers=headers, body=body).data
         # Post processing needs to be done for some of the dockyard operations
-        self.engine_client.post_process(method=method, url=url,
-                                       body=body, headers=headers)
+        #self.engine_client.post_process(method=method, url=url,
+        #                               body=body, headers=headers)
         return data
 
 

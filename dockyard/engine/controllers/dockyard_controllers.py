@@ -1,4 +1,6 @@
+from pecan.rest import RestController
 from dockyard.engine.controllers.network import DockyardNetworkController
+from dockyard.engine.controllers.interface import InterfaceController
 
 class DockyardEngineController(RestController):
     """Controller for the Engine.
@@ -18,7 +20,7 @@ class DockyardEngineController(RestController):
 
     """This controller is for providing dockyard specific networking.
     """
-    network = DockyardNetworkController()
+    networks = DockyardNetworkController()
  
     def __init__(self):
         pass

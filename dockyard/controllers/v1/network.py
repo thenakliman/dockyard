@@ -35,9 +35,9 @@ class Network(object):
     def floatingip(self):
         abort(404)
 
-    @disconnect.when(method='POST')
-    def floating_(self, _id, **kwargs):
-        return self.network.attach_floatingip(_id, **kwargs)
+    @floatingip.when(method='POST')
+    def floatingip_(self, _id, **kwargs):
+        return self.network.attach_floatingip(_id, kwargs)
 
 
 class NetworkController(object):
@@ -54,6 +54,7 @@ class NetworkController(object):
 
     @expose()
     def _lookup(self, id_name_op=None, op=None):
+
         new_url = []
         if op:
             new_url.append(op)
@@ -66,5 +67,5 @@ class NetworkController(object):
             new_url = tuple(new_url)
         else:
             new_url = tuple([''])
-
+       
         return Network(), new_url

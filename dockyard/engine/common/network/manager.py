@@ -148,6 +148,7 @@ class DockyardNetworkManager(object):
 
         # Move network interfaces to the namespace
         psid = int(psid)
+        print ifs
         self.if_.update(ifname=ifs["int_if"], psid=psid, state="up")
 
         # Assign IP address to the container

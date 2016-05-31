@@ -8,7 +8,7 @@ class DockerNetwork(object):
     base_url = '/networks'
 
     def __init__(self):
-        self.url = url.URL(self.base_url)
+        pass
 
     def list(self, name_or_id=None):
         url_ = self.url.make_url(id_=name_or_id)
@@ -36,19 +36,23 @@ class DockerNetwork(object):
 
 class DockyardNetwork(object):
     dockyard_base_url = '/dockyard'
-    base_url = '/networks'
 
     def __init__(self):
-        self.url = url.URL(self.base_url)
+        pass
 
-    def attach_floatingip(self, id_, **kwargs):
+    def _get_localhost(self):
+        return utils.get_localhost()
+
+    def attach_floatingip(self, id_, data):
         """This method attaches floating ip to the containers.
         """
-        url_ = self.url.make_url(id_=id_, url_='/floatingip')
-        return utils.dispatch_post_request(url=url_)
+        url_ = self.url.make_dockyard_url(id_=id_, url_='floatingip')
+        return utils.dispatch_post_request(url=url_, body=body,
+                                           host=self._get_localhost())
 
 
-class Network(DockerNetwork, DockyardNetwork):
+class Network(DockyardNetwork, DockerNetwork):
     def __init__(self):
-        super(DockerNetwork, self).__init__(self)
-        super(DockyardNetwork, self).__init__(self)
+        super(DockerNetwork, self).__init__()
+        super(DockyardNetwork, self).__init__()
+        self.url = url.URL(self.base_url, self.dockyard_base_url)
