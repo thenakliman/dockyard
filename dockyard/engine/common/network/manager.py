@@ -6,7 +6,7 @@ from dockyard.engine.common.exceptions import InterfaceNotFound
 
 CONF = cfg.CONF
 # Fetch scheduler defined in the configuration file and load it.
-network_driver_info = CONF.default.network_driver
+network_driver_info = CONF.network.network_driver
 # May be this path can be specified in the configuration file.
 network_driver_loc = 'dockyard.engine.common.network.drivers'
 network_driver_info = (('%s.%s') % (network_driver_loc, network_driver_info))
@@ -34,6 +34,13 @@ class IFManager(object):
         ifs = dict()
         ifs[psid] = self.network.get_ifs(psid)
         return ifs
+
+    def attach_if(self, ifname, brname):
+        """This method attach interface to the bridge for external interface
+           :params ifname: interface name of the new container.
+           :params brname: bridge name to which container attach.
+        """
+        self.network.attach_port(ifname=ifname, br_name=brname) 
 
     def create(self, peer=None, ifname=None, kind='veth'):
         """This method creates interfaces in the namespace.
@@ -144,19 +151,26 @@ class DockyardNetworkManager(object):
            :returns: returns information set to the container.
         """
         # Create network inerfaces.
+        print "++++"
         ifs = self.if_.create()["interface_names"]
 
+        print "++++"
         # Move network interfaces to the namespace
         psid = int(psid)
-        print ifs
         self.if_.update(ifname=ifs["int_if"], psid=psid, state="up")
 
+        print "++++"
         # Assign IP address to the container
         self.ip.addr(ifname=ifs["int_if"], psid=psid, address=ip,
                       mask=int(mask))
 
+        print "++++"
         # Create routes for the newly added interface
         self.route.routes(ifname=ifs["int_if"], psid=psid, gateway=gateway,
                           dst='default')
 
+        print "++++"
+        self.if_.attach_if(ifname=ifs["ext_if"], brname=CONF.network.bridge)
+
+        print "++++"
         return "Gathered Information."

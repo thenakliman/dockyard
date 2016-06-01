@@ -129,7 +129,6 @@ class Link(object):
     def create(self, ifname, peer, kind='veth', net_ns_fd=None):
         """Create link.
         """
-        print ifname, peer, kind, net_ns_fd
         ipdb = self.ipdb_manager.open_ipdb(net_ns_fd) 
         ipdb.create(ifname=ifname, kind=kind, peer=peer)
         self.ipdb_manager.close_ipdb(ipdb)

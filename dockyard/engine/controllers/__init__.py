@@ -1,6 +1,5 @@
 from oslo_config import cfg
 
-
 NETWORK_DRIVER_OPT = [
     cfg.StrOpt('network_driver',
                 default='bridges.linux.LinuxBridgeManager',
@@ -8,4 +7,11 @@ NETWORK_DRIVER_OPT = [
 ]
 
 CONF = cfg.CONF
-CONF.register_opts(NETWORK_DRIVER_OPT, group='default')
+opt_group = cfg.OptGroup(name='network',
+                         title='Group for the network values of dockyard api')
+CONF.register_group(opt_group)
+CONF.register_opts(NETWORK_DRIVER_OPT, opt_group)
+
+
+CONF = cfg.CONF
+CONF.register_opts(NETWORK_DRIVER_OPT, group='network')

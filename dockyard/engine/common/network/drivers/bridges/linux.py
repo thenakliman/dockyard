@@ -72,10 +72,10 @@ class LinuxBridgeManager(object):
         """
         try:
             self.link.attach_port(ifname=ifname, bridge=br_name)
-            LOG.info("Attached interface: %s to bridge: %s" % (ifname, bridge))
+            LOG.info("Attached interface: %s to bridge: %s" % (ifname, br_name))
         except Exception as e:
             msg = ("Unable to attach %s interface with %s bridge. ERROR: %s"
-                    % (ifname, bridge, e))
+                    % (ifname, br_name, e))
             LOG.exception(msg)
             raise UnableToAttachPort(msg)
 

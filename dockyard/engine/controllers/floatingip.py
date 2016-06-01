@@ -14,5 +14,3 @@ class FloatingIPController(RestController):
         """
         kwargs = str_to_dict(request.body)
         return self.network.add_ip(**kwargs)
-
-

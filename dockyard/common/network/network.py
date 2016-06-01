@@ -47,6 +47,7 @@ class DockyardNetwork(object):
         """This method attaches floating ip to the containers.
         """
         url_ = self.url.make_dockyard_url(id_=id_, url_='floatingip')
+        body = request.body
         return utils.dispatch_post_request(url=url_, body=body,
                                            host=self._get_localhost())
 
