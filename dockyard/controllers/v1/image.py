@@ -1,70 +1,70 @@
-from pecan import expose, route, abort
+from pecan import expose, route
+from pecan.rest import RestController
 
 from dockyard.common.image import image
 
 
-class Image(object):
+class ImageController(RestController):
     def __init__(self):
         self.image = image.Image()
-        super(Image, self).__init__()
 
     @expose()
+    def get_one(self, name_or_id, operation):
+        if not operation:
+            operation = name_or_id
+            name_or_id = None
+
+        return getattr(self, operation)(name_or_id)
+
+    @expose()
+    # This method is not working, it has to be corrected.
+    def get(self, operation):
+        return getattr(self, operation)()
+
+    def search(self, term):
+        return self.search(term=name_or_id)
+
+    def history(self, name_or_id):
+        return self.history(name_or_id)
+
+    def json(self, name_or_id=None):
+        return self.list_(_id=name_or_id)
+
     def push(self, _id):
         return self.image.push(_id)
 
-    @expose(generic=True)
-    def index(self):
-        abort(404)
+    @expose()
+    def post(self, name=None, operation=None):
+        if not operation:
+            operation = name_or_id
+            name_or_id = None
 
-    @expose(generic=True)
-    def create(self, *args):
-        abort(404)
+        return getattr(self, operation)(name_or_id)
 
-    @create.when(method="POST")
-    def create_POST(self, fromImage, tag='latest'):
-        return self.image.create(fromImage, tag).data
+    # Test this method
+    def create(self, fromImage, tag='latest'):
+        return self.image.create(fromImage, tag)
 
-    @index.when(method="DELETE")
-    def delete(self, _id):
-        return self.image.delete(_id).data
+    def tag(self, name, **kwargs):
+        return self.image.tag(id_or_name, kwargs)
+
+    # This method has to be put in the misc section, as per API
+    # it does not seems to belong to images
+    def build(self, **kwargs):
+        return self.image.build(kwargs)
+
+    def push(self):
+        return self.push(name)
 
     @expose()
-    def json(self, _id=None):
+    def delete(self, name):
+        return self.image.delete(name)
+
+    def list_(self, _id=None):
         return self.image.list(_id)
 
-    @expose()
     def search(self, term=None):
         return self.image.search(term)
 
-    @expose()
     def history(self, _id=None):
         return self.image.history(_id)
-
-    @expose(generic=True)
-    def tag(self, *args):
-        abort(404)
-
-    @tag.when(method="POST")
-    def tag_POST(self, id_or_name, **kwargs):
-        return self.image.tag(id_or_name, kwargs).data
-
-    @expose(generic=True)
-    def build(self, *args):
-        abort(404)
-
-    @build.when(method="POST")
-    def build_POST(self, **kwargs):
-        return self.image.build(kwargs).data
-
-
-class ImageController(object):
-    def __init__(self):
-        pass
-
-    @expose()
-    def _lookup(self, _id, op=None):
-        if op is not None:
-            new_url = (op, _id)
-        else:
-            new_url = tuple([_id])
-        return Image(), new_url

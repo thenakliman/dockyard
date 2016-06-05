@@ -1,71 +1,41 @@
 from pecan import expose, abort
+from pecan.rest import RestController
 
 from dockyard.common.network import network
 
 
-class Network(object):
+class NetworkController(RestController):
     def __init__(self):
         self.network = network.Network()
-
-    @expose(generic=True)
-    def index(self, name_or_id=None):
-        return self.network.list(name_or_id)
-
-    @index.when(method="DELETE")
-    def index_delete(self, name_or_id):
-        return self.network.delete(name_or_id)
-
-    @expose(generic=True)
-    def connect(self):
-        abort(404)
-
-    @connect.when(method='POST')
-    def connect_(self, _id, **kwargs):
-        return self.network.connect(_id, **kwargs)
-
-    @expose(generic=True)
-    def disconnect(self):
-        abort(404)
-
-    @disconnect.when(method='POST')
-    def disconnect_(self, _id, **kwargs):
-        return self.network.disconnect(_id, **kwargs)
-
-    @expose(generic=True)
-    def floatingip(self):
-        abort(404)
-
-    @floatingip.when(method='POST')
-    def floatingip_(self, _id, **kwargs):
-        return self.network.attach_floatingip(_id, kwargs)
-
-
-class NetworkController(object):
-    def __init__(self):
-        self.network = network.Network()
-
-    @expose(generic=True)
-    def create(self):
-        abort(404)
-
-    @create.when(method="POST")
-    def _create(self, **kwargs):
-        return self.network.create(kwargs)
 
     @expose()
-    def _lookup(self, id_name_op=None, op=None):
+    def post(self, _id, operation=None, **kwargs):
+        if not operation:
+            operation = _id
+            _id = None
 
-        new_url = []
-        if op:
-            new_url.append(op)
-            new_url.append(id_name_op)
-        elif id_name_op:
-            new_url.append('')
-            new_url.append(id_name_op)
+        return getattr(self, operation)(_id=_id, **kwargs)
 
-        if new_url:
-            new_url = tuple(new_url)
-        else:
-            new_url = tuple([''])
-       
-        return Network(), new_url
+    def create(self, _id=None, **kwargs):
+        return self.network.create(**kwargs)
+
+    def connect(self, _id=None, **kwargs):
+        return self.network.connect(_id, **kwargs)
+
+    @expose()
+    def get_one(self, name_or_id):
+        return self.network.list(name_or_id)
+
+    @expose()
+    def get(self):
+        return self.network.list()
+
+    @expose()
+    def delete(self, name_or_id):
+        return self.network.delete(name_or_id)
+
+    def disconnect(self, _id, **kwargs):
+        return self.network.disconnect(_id, **kwargs)
+
+    def floatingip(self, _id, **kwargs):
+        return self.network.attach_floatingip(_id, kwargs)

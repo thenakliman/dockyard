@@ -15,7 +15,7 @@ class Image(object):
 
     def history(self, id_=None):
         url_ = self.url.make_url(url_='history', id_=id_)
-        return utils.dispatch_get_request(url=url_).data
+        return utils.dispatch_get_request(url=url_)
 
     def search(self, term=None):
         url_ = self.url.make_url(url_='search')

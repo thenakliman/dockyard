@@ -29,6 +29,7 @@ class Container(object):
     def resize(self, id_, **kwargs):
         url_ = self.url.make_url(url_='resize', id_=id_)
 
+        query = ''
         if kwargs:
             query = link.make_query_url(kwargs)
 
@@ -65,6 +66,7 @@ class Container(object):
     def logs(self, id_, query_string, **kwargs):
         url_ = self.url.make_url(url_='logs', id_=id_)
 
+        query = ''
         if kwargs:
             query = link.make_query_url(kwargs)
 
@@ -84,7 +86,7 @@ class Container(object):
 
     def stop(self, id_, query_params=None):
         url_ = self.url.make_url(url_='stop', id_=id_)
-        return utils.dispatch_post_request(url_, query_params=query_parmas)
+        return utils.dispatch_post_request(url_, query_params=query_params)
 
     def exe(self, _id):
         abort(404)
@@ -96,6 +98,7 @@ class Container(object):
     def rename(self, id_, **kwargs):
         url_ = self.url.make_url(url_='rename', id_=id_)
 
+        query = ''
         if kwargs:
             query = link.make_query_url(kwargs)
 
@@ -120,6 +123,7 @@ class Container(object):
     def delete(self, id_, **kwargs):
         url_ = self.url.make_url(id_=id_)
 
+        query = ''
         if kwargs:
             query = link.make_query_url(kwargs)
 

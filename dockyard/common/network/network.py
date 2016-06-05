@@ -14,19 +14,19 @@ class DockerNetwork(object):
         url_ = self.url.make_url(id_=name_or_id)
         return utils.dispatch_get_request(url=url_)
 
-    def connect(self, id_, data):
-        body = json.dumps(data)
+    def connect(self, id_, **kwargs):
+        body = request.body
         url_ = self.url.make_url(url_='connect', id_=id_)
         return utils.dispatch_post_request(url=url_, body=body)
 
-    def disconnect(self, id_, data):
+    def disconnect(self, id_, **kwargs):
         url_ = self.url.make_url(url_='disconnect', id_=id_)
-        body = json.dumps(data)
+        body = request.body
         return utils.dispatch_post_request(url=url_, body=body)
 
-    def create(self, data):
+    def create(self, **kwargs):
         url_ = self.url.make_url(url_='create')
-        body = json.dumps(data)
+        body = request.body
         return utils.dispatch_post_request(url=url_, body=body)
 
     def delete(self, id_):

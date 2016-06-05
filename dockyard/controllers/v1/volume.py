@@ -1,41 +1,27 @@
-from pecan import expose
+from pecan import expose, request
+from pecan.rest import RestController
 
 from dockyard.common.volume import volume
 
-
-class Volume(object):
+class VolumeController(RestController):
+    """This class exposes all the API's related with volume.
+    """
     def __init__(self):
         self.volume = volume.Volume()
 
-    @expose(generic=True)
-    def index(self, name=None):
-        return self.volume.list(name)
-
-    @index.when(method='DELETE')
-    def index_DELETE(self, name):
-        return self.volume.delete(name)
-
-    @expose(generic=True)
-    def create(self):
-        abort(404)
-
-    @create.when(method='POST')
-    def _create(self, **kwargs):
-        return self.volume.create(kwargs)
-
-
-class VolumeController(object):
-    def __init__(self):
-        pass
+    @expose()
+    def get_one(self, name=None):
+        return self.volume.list(name=name)
 
     @expose()
-    def _lookup(self, op=None):
-        new_url = ['']
-        if op:
-            new_url.append(op)
+    def get(self):
+        return self.volume.list()
 
-        if new_url:
-            new_url = tuple(new_url)
-        else:
-            new_url = tuple([''])
-        return Volume(), new_url
+    @expose()
+    def delete(self, name):
+        return self.volume.delete(name=name)
+
+    @expose()
+    def post(self, operation=None):
+        body = request.body
+        return self.volume.create(data=body)

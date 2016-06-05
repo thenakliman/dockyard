@@ -106,7 +106,7 @@ def prepare_logging(argv=None):
     logging.setup(CONF, 'dockyard')
 
 def dispatch_get_request(url, headers=None, protocol='http', query_params=None):
-    ln = get_link(url, protocol)
+    ln = get_link(url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
@@ -128,7 +128,7 @@ def dispatch_post_request(url, host=None, protocol='http',
 
 
 def dispatch_put_request(url, protocol='http', body=None, query_params=None):
-    ln = get_link(url, protocol)
+    ln = get_link(url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
@@ -139,7 +139,7 @@ def dispatch_put_request(url, protocol='http', body=None, query_params=None):
 
 def dispatch_delete_request(url, headers = None, protocol='http',
                             query_params=None):
-    ln = get_link(url, protocol)
+    ln = get_link(url=url, protocol=protocol)
     return request.send(method='DELETE', url=ln)
 
 
@@ -147,7 +147,7 @@ def dispatch_post_req(url, headers=None, body=None,
                       post_params=None, host=None):
     if not headers:
         headers = {'Content-Type': 'application/json'}
-    
+
     return request.send(method='POST', url=url, headers=headers, body=body)
 
 

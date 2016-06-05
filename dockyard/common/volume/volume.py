@@ -19,5 +19,4 @@ class Volume(object):
 
     def create(self, data):
         url_ = self.url.make_url(url_='create')
-        body = json.dumps(data)
-        return utils.dispatch_post_request(url, body=body)
+        return utils.dispatch_post_request(url=url_, body=data)
