@@ -29,10 +29,13 @@ class Consul(Membership):
             raise exception.Incompleteinfo(message)
             
 
+        http = ("http://%s:%d" % (host, port))
         self.consul.agent.service.register(name=name,
                                            address=host,
                                            port = port,
-                                           tags = tags) 
+                                           tags = tags,
+                                           http = http,
+                                           interval=10) 
 
     def _register_dockyard(self):
         ip = CONF['default']['host']
