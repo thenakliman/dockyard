@@ -28,8 +28,11 @@ class Consul(Membership):
             LOG.exception("Cannot continue, Incomplete info: %s" % message)
             raise exception.Incompleteinfo(message)
             
+        if host:
+            http = ("http://%s:%d" % (host, port))
+        else:
+            http = ("http://localhost:%d" % (port))
 
-        http = ("http://%s:%d" % (host, port))
         self.consul.agent.service.register(name=name,
                                            address=host,
                                            port = port,
