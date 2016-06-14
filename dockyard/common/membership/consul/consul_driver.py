@@ -1,4 +1,5 @@
 import consul
+import netifaces
 from oslo_config import cfg
 from oslo_log import log as logging
 
@@ -9,30 +10,44 @@ CONF = cfg.CONF
 
 LOG = logging.getLogger(__name__)
 
+
+def get_localhost_ip():
+    """This method resturns localhost ip.
+    """
+    ifs = netifaces.interfaces()
+    for i in ifs:
+        try:
+            addr = netifaces.ifaddresses(i)[netifaces.AF_INET][0]['addr']
+        except KeyError:
+            pass
+
+        if addr == '127.0.0.1':
+            continue
+
+        yield addr
+
+
 class Consul(Membership):
     def __init__(self):
         self.consul = consul.Consul()
 
-    def _register_service(self, name, host, port, tags=None):
+    def _register_service(self, name, host, port, tags=None, url=''):
         if not name:
             message = ('Service name to use for registering')
             LOG.exception("Cannot continue, Incomplete info: %s" % message)
             raise exception.IncompleteInfo(message)
 
-#        if not host:
-#            message = ('IP address for the service to be used')
-#            raise exception.IncompleteInfo(message)
- 
         if not port:
             message = ('Port number used by the services to listen')
             LOG.exception("Cannot continue, Incomplete info: %s" % message)
             raise exception.Incompleteinfo(message)
             
-        if host:
-            http = ("http://%s:%d" % (host, port))
-        else:
-            http = ("http://localhost:%d" % (port))
+        if not host:
+            for ip in get_localhost_ip():
+                host = ip
+                break
 
+        http = ("http://%s:%d/%s" % (host, port, url))
         self.consul.agent.service.register(name=name,
                                            address=host,
                                            port = port,
@@ -45,11 +60,11 @@ class Consul(Membership):
 
         if ip == '0.0.0.0':
             ip = None 
-     
+
         port = CONF['default']['port']
         tags = ['master']
         name = CONF['consul']['service_name']
-  
+ 
         self._register_service(name, ip, port, tags)
 
     def _register_docker(self):
@@ -59,8 +74,8 @@ class Consul(Membership):
      
         port = CONF['docker']['docker_port']
         name = CONF['docker']['docker_name']
-  
-        self._register_service(name, ip, port)
+
+        self._register_service(name, ip, port, url='images/json')
 
 
     def register(self):

@@ -4,3 +4,5 @@ pecan
 python-consul
 nsenter
 pyroute2
+netifaces
+python-dev
