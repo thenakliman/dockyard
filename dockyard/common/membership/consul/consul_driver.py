@@ -5,6 +5,7 @@ from oslo_log import log as logging
 
 from dockyard.common.membership.base import Membership
 from dockyard.common import exception
+from dockyard.common.membership.consul import utils as consul_utils
 
 CONF = cfg.CONF
 
@@ -26,10 +27,21 @@ def get_localhost_ip():
 
         yield addr
 
+class ConsulHealthCheck(object):
+    def __init__(self):
+        self.healthy = consul.Consul().health
+
+    def get_healthy_nodes(self, service="dockyard"):
+        """Get healthy nodes in the cluster.
+        """
+        services = self.healthy.service(service=service, passing=True)
+        return consul_utils.get_formatted_hosts(services)
+
 
 class Consul(Membership):
     def __init__(self):
         self.consul = consul.Consul()
+        self.healthy_services = ConsulHealthCheck()
 
     def _register_service(self, name, host, port, tags=None, url=''):
         if not name:
@@ -53,7 +65,7 @@ class Consul(Membership):
                                            port = port,
                                            tags = tags,
                                            http = http,
-                                           interval=10) 
+                                           interval=15) 
 
     def _register_dockyard(self):
         ip = CONF['default']['host']
@@ -117,9 +129,11 @@ class Consul(Membership):
     def get_all_hosts(self, tag='agent'):
         """Returns all the members current agent sees.
         """
-        services = self.consul.catalog.service('docker')
+        # services = self.consul.catalog.service('docker')
+        services = self.healthy_services.get_healthy_nodes()
         if not services:
             message = "No services are registered to the consul"
             raise exception.NoValidHostFound(message)
 
-        return self._get_services(services)
+        print services
+        return services
