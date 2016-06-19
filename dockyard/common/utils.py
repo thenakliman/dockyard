@@ -105,8 +105,10 @@ def prepare_logging(argv=None):
     CONF(argv[1:], project='dockyard')
     logging.setup(CONF, 'dockyard')
 
-def dispatch_get_request(url, headers=None, protocol='http', query_params=None):
-    ln = get_link(url=url, protocol=protocol)
+def dispatch_get_request(url, headers=None, protocol='http',
+                         query_params=None, host=None):
+
+    ln = get_link(host=host, url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
@@ -127,7 +129,9 @@ def dispatch_post_request(url, host=None, protocol='http',
     return dispatch_post_req(url=ln, post_params=query_params, body=body)
 
 
-def dispatch_put_request(url, protocol='http', body=None, query_params=None):
+def dispatch_put_request(url, protocol='http', body=None,
+                        host=None, query_params=None):
+
     ln = get_link(url=url, protocol=protocol)
 
     if query_params:

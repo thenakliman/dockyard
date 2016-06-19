@@ -1,5 +1,7 @@
 from oslo_config import cfg
 
+import dockyard.engine.common.containers.store.consul
+
 NETWORK_DRIVER_OPT = [
     cfg.StrOpt('network_driver',
                 default='bridges.linux.LinuxBridgeManager',
