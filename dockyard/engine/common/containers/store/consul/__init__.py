@@ -19,7 +19,6 @@ CONF.register_group(opt_group)
 CONF.register_opts(CONSUL_DATABASE_OPT, opt_group)
 
 
-
 class Synchronizer(Thread):
     def __init__(self):
         Thread.__init__(self)

@@ -19,12 +19,11 @@ engine_client_info = CONF.default.engine_client
 engine_client_loc = 'dockyard.engine_client'
 engine_client_info = (('%s.%s') % (engine_client_loc, engine_client_info))
 module_name, class_name = engine_client_info.rsplit(".", 1)
-class_ = getattr(importlib.import_module(module_name), class_name)
-engine_client = class_()
+engine_client = getattr(importlib.import_module(module_name), class_name)
 
 class URL(object):
     def __init__(self):
-        self.engine_client = engine_client()
+        pass
 
     @abc.abstractmethod
     def send(self, method, url, headers=None, post_params=None,
@@ -39,6 +38,7 @@ class URL(object):
 
 class DockyardURL(URL):
     def __init__(self):
+        self.engine_client = engine_client()
         self.pool = PoolManager()
 
     def _is_local_request(self):
@@ -48,7 +48,7 @@ class DockyardURL(URL):
             request.headers.environ['Request-Status']
         except KeyError:
             status = False
-        else:
+        except:
             status = True
 
         return status
@@ -77,15 +77,3 @@ class DockyardURL(URL):
         #self.engine_client.post_process(method=method, url=url,
         #                               body=body, headers=headers)
         return data
-
-
-    def _add_headers(self, headers):
-        """This method adds header to each request.
-           Valid values for Request-Status header are Scheduled.
-           More values will be added, as per requirements.
-        """
-        if not headers:
-            headers = dict()
-
-        headers['Request-Status'] = 'Scheduled'
-        return headers

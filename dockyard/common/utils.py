@@ -88,10 +88,21 @@ def get_localhost():
 
 
 def get_link(url, host=None, protocol='http'):
+    headers = dict()
+
     if not host:
         host = get_host()
+        headers['Request-Status'] = 'Scheduled'
 
-    return link.make_url(host=host['host'], port=host['port'], url=url)
+    url = link.make_url(host=host['host'], port=host['port'], url=url)
+    return (url, headers)
+
+def merge_dict(x=dict(), y=dict()):
+    """Merge two dictionaries.
+    """
+    z = x.copy()
+    z.update(y)
+    return z
 
 def prepare_logging(argv=None):
     """
@@ -105,58 +116,65 @@ def prepare_logging(argv=None):
     CONF(argv[1:], project='dockyard')
     logging.setup(CONF, 'dockyard')
 
-def dispatch_get_request(url, headers=None, protocol='http',
+def dispatch_get_request(url, headers=dict(), protocol='http',
                          query_params=None, host=None):
 
-    ln = get_link(host=host, url=url, protocol=protocol)
+    (ln, hdr) = get_link(host=host, url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return request.send(method='GET', url=ln)
+    headers = merge_dict(headers, hdr)
+    return request.send(method='GET', url=ln, headers=headers)
 
 
 def dispatch_post_request(url, host=None, protocol='http',
                           body=None, query_params=None):
 
-    ln = get_link(host=host, url=url, protocol=protocol)
+    (ln, hdr) = get_link(host=host, url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return dispatch_post_req(url=ln, post_params=query_params, body=body)
+    headers = merge_dict(headers, hdr)
+    return dispatch_post_req(url=ln, post_params=query_params,
+                             body=body, headers=headers)
 
 
 def dispatch_put_request(url, protocol='http', body=None,
                         host=None, query_params=None):
 
-    ln = get_link(url=url, protocol=protocol)
+    (ln, hdr) = get_link(host=host, url=url, protocol=protocol)
 
     if query_params:
         query = link.make_query_url(query_params)
         ln = (('%s?%s') % (ln, query))
 
-    return dispatch_put_req(url=ln, post_params=query_params, body=body)
+    headers = merge_dict(headers, hdr)
+    return dispatch_put_req(url=ln, post_params=query_params,
+                            body=body, headers=headers)
 
 
-def dispatch_delete_request(url, headers = None, protocol='http',
-                            query_params=None):
-    ln = get_link(url=url, protocol=protocol)
-    return request.send(method='DELETE', url=ln)
+def dispatch_delete_request(url, headers=dict(), protocol='http',
+                            query_params=None, host=None):
+    (ln, hdr) = get_link(url=url, protocol=protocol, host=None)
+    headers = merge_dict(headers, hdr)
+    return request.send(method='DELETE', url=ln, headers=headers)
 
 
-def dispatch_post_req(url, headers=None, body=None,
-                      post_params=None, host=None):
+def dispatch_post_req(url, headers=dict(), body=None, post_params=None):
     if not headers:
-        headers = {'Content-Type': 'application/json'}
-
+        hdr = {'Content-Type': 'application/json'}
+        headers = merge_dict(headers, hdr)
+    
     return request.send(method='POST', url=url, headers=headers, body=body)
 
 
-def dispatch_put_req(url, headers=None, body=None, post_params=None):
+def dispatch_put_req(url, headers=dict(), body=None, post_params=None):
     if not headers:
         headers = {'Content-Type': 'application/x-tar'}
+        headers = merge_dict(headers, hdr)
 
     return request.send(method='PUT', url=url, headers=headers, body=body)
