@@ -30,8 +30,9 @@ class Synchronizer(Thread):
         """This thread is responsible for synchronizations of containers,
            and other docker resources.
         """
-        self.container.synchronize()
-        time.sleep(self.sleep_time)
+        while True:
+            self.container.synchronize()
+            time.sleep(self.sleep_time)
 
 
 sync = Synchronizer()

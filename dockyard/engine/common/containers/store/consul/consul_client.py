@@ -7,5 +7,5 @@ class ConsulKV(object):
     def get(self, key):
         self.consul.kv.get(key)
 
-    def get(self, key, value):
+    def put(self, key, value):
         self.consul.kv.put(key, value)

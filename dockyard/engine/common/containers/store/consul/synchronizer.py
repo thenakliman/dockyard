@@ -1,7 +1,7 @@
 import ast
 from oslo_config import cfg
 
-from dockyard.engine.common.utils import get_localhost_ip
+from dockyard.common.utils import get_localhost_ip
 from dockyard.common.container.container import Container
 from dockyard.engine.common.containers.store.consul import consul_client
 
@@ -47,5 +47,6 @@ class ContainerSynchronizer(object):
         """This method is responsible for registering a container.
         """
         id_ = container["Id"]
-        container_info = self.container._inspect(id_=id_)
-        self.db.put(id_, container_info)
+        container_info = self._inspect(id_=id_)
+        key = str((id_, self.host))
+        self.db.put(key, container_info)

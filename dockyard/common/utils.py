@@ -1,4 +1,5 @@
 import importlib
+import netifaces
 from oslo_config import cfg
 from oslo_log import log as logging
 from pecan import request as rcvd_req
@@ -65,15 +66,37 @@ def get_host():
        If this instance of the process is engine then it should direct
        to docker procss running on local machine and does preprocessing.
     """
+    host = ''
     try:
         rcvd_req.headers.environ['Request-Status']
     except KeyError:
         hosts = membership.get_all_hosts()
         host = scheduler.get_host(hosts=hosts)
-    else:
-        host = { 'host': CONF['docker_host'], 'port': CONF['docker_port'] }
+
+    if (not host) or is_localhost(host=host):
+        host = {
+                 'host': CONF['docker']['docker_host'],
+                 'port': CONF['docker']['docker_port']
+               }
 
     return host
+
+
+def get_localhost_ip():
+    """This method resturns localhost ip.
+    """
+    ifs = netifaces.interfaces()
+    for i in ifs:
+        try:
+            addr = netifaces.ifaddresses(i)[netifaces.AF_INET][0]['addr']
+        except KeyError:
+            pass
+
+        if addr == '127.0.0.1':
+            continue
+
+        yield addr
+
 
 def get_localhost():
     d = dict()
@@ -85,6 +108,19 @@ def get_localhost():
 
     d['port'] = CONF.default.port
     return d
+
+
+def is_localhost(host):
+    """This method returns whether specified host is local machine's IP
+       or not.
+    """
+    localhost_ips = get_localhost_ip()
+    for ip in localhost_ips:
+        if ip == host['host']:
+            return True
+        print ip
+
+    return False
 
 
 def get_link(url, host=None, protocol='http'):

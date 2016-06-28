@@ -62,16 +62,17 @@ class DockyardURL(URL):
            :post_params: post parameters.
            :body: Request body.
         """
-        req_type = self._is_local_request()
+        #req_type = self._is_local_request()
         # Pre processing needs to be done for dockyard feature before
         # performing some actions
         # print method, url, headers, body
-        if req_type: 
-            self.engine_client.pre_process(method=method, url=url,
-                                           body=body, headers=headers)
-        else:
-            headers = self._add_headers(headers)
-
+        #if req_type: 
+        #    self.engine_client.pre_process(method=method, url=url,
+        #                                   body=body, headers=headers)
+        #else:
+        #    headers = self._add_headers(headers)
+        headers = {}
+        print method, url, headers, body
         data = self.pool.urlopen(method, url, headers=headers, body=body).data
         # Post processing needs to be done for some of the dockyard operations
         #self.engine_client.post_process(method=method, url=url,

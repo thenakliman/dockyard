@@ -135,5 +135,4 @@ class Consul(Membership):
             message = "No services are registered to the consul"
             raise exception.NoValidHostFound(message)
 
-        print services
         return services
