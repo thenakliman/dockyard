@@ -68,7 +68,7 @@ def get_host():
     """
     host = ''
     try:
-        rcvd_req.headers.environ['Request-Status']
+        rcvd_req.headers['Request-Status']
     except KeyError:
         hosts = membership.get_all_hosts()
         host = scheduler.get_host(hosts=hosts)
