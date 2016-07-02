@@ -118,7 +118,6 @@ def is_localhost(host):
     for ip in localhost_ips:
         if ip == host['host']:
             return True
-        print ip
 
     return False
 

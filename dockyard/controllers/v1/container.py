@@ -15,7 +15,7 @@ class ContainerController(RestController):
             abort(404)
 
     @expose()
-    def get(self, name_or_id, operation, **kwargs):
+    def get(self, name_or_id, operation=None, **kwargs):
         return self._call_operation(name_or_id, operation, **kwargs)
 
     @expose()

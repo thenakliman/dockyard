@@ -1,13 +1,12 @@
 import ast
 from oslo_config import cfg
 
-from dockyard.common.utils import get_localhost_ip
+#from dockyard.common.utils import get_localhost_ip
 from dockyard.common.container.container import Container
-from dockyard.engine.common.containers.store.consul import consul_client
+from dockyard.engine_client import module, db
 
 
 CONF = cfg.CONF
-
 
 class ContainerSynchronizer(object):
     def __init__(self):
@@ -21,13 +20,15 @@ class ContainerSynchronizer(object):
         port = CONF.docker.docker_port
         self.host = { 'host': host, 'port': port }
         self.container = Container()
-        self.db = consul_client.ConsulKV()
+        self.db = getattr(module, db)()
 
     def _containers(self):
         """This method fetch all the containers running on local machines.
         """
         containers = self.container.list(host=self.host)
+        containers = containers.replace("null", '"null"')
         containers = ast.literal_eval(containers)
+
         for con in containers:
             yield con
 
@@ -47,6 +48,7 @@ class ContainerSynchronizer(object):
         """This method is responsible for registering a container.
         """
         id_ = container["Id"]
-        container_info = self._inspect(id_=id_)
-        key = str((id_, self.host))
-        self.db.put(key, container_info)
+        container_info = {"host": self.host,
+                          "container_info": self._inspect(id_=id_)}
+
+        self.db.put(id_, str(container_info))
