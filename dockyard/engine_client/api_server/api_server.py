@@ -74,4 +74,7 @@ class APIServerEngineClient(EngineClient):
 
     def process(self, url, **kwargs):
         module = self._get_module(url)
-        return getattr(self.router, module)(url, **kwargs)
+        try:
+            return getattr(self.router, module)(url, **kwargs)
+        except:
+            return 
