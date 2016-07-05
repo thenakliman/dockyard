@@ -12,17 +12,16 @@ class ContainerSynchronizer(object):
         self.db = getattr(module, db)()
 
 
-    def synchronize(self, containers_info):
+    def synchronize(self, infos):
         """This method is responsible for initilizing databases at the start
            of dockyard. It collects all the containers running on localhost
            and putt the data in the consul
         """
-        for container in containers_info:
-            self._register(container)
+        for info in infos:
+            self._register(info)
 
-    def _register(self, container_info):
+    def _register(self, info):
         """This method is responsible for registering a container.
         """
-        (key, container) = container_info
-        print container_info
-        return self.db.put(str(key), str(container))
+        (key, value) = info
+        return self.db.put(str(key), str(info))

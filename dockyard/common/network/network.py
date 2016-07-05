@@ -10,28 +10,28 @@ class DockerNetwork(object):
     def __init__(self):
         pass
 
-    def list(self, name_or_id=None):
+    def list(self, name_or_id=None, host=None):
         url_ = self.url.make_url(id_=name_or_id)
-        return utils.dispatch_get_request(url=url_)
+        return utils.dispatch_get_request(url=url_, host=host)
 
-    def connect(self, id_, **kwargs):
+    def connect(self, id_, host=None, **kwargs):
         body = request.body
         url_ = self.url.make_url(url_='connect', id_=id_)
-        return utils.dispatch_post_request(url=url_, body=body)
+        return utils.dispatch_post_request(url=url_, body=body, host=host)
 
-    def disconnect(self, id_, **kwargs):
+    def disconnect(self, id_, host=None, **kwargs):
         url_ = self.url.make_url(url_='disconnect', id_=id_)
         body = request.body
-        return utils.dispatch_post_request(url=url_, body=body)
+        return utils.dispatch_post_request(url=url_, body=body, host=host)
 
-    def create(self, **kwargs):
+    def create(self, host=None, **kwargs):
         url_ = self.url.make_url(url_='create')
         body = request.body
-        return utils.dispatch_post_request(url=url_, body=body)
+        return utils.dispatch_post_request(url=url_, body=body, host=host)
 
-    def delete(self, id_):
+    def delete(self, id_, host=None):
         url_ = self.url.make_url(id_=id_)
-        return utils.dispatch_delete_request(url=url_)
+        return utils.dispatch_delete_request(url=url_, host=host)
 
 
 class DockyardNetwork(object):
