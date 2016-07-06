@@ -42,12 +42,12 @@ class Synchronizer(Thread):
             self._synchronize()
             time.sleep(self.sleep_time)
 
-    def _get_format(self, id_, value, type_):
+    def _get_format(self, value, type_):
         """This method converts a container information into the required format
            for the container.
         """
         value = {"host": self.host, type_: value}
-        key = (self.host["host"], id_, type_)
+        key = (self.host["host"], type_)
         return (key, value)
   
     def _synchronize_container(self):
@@ -66,14 +66,21 @@ class Synchronizer(Thread):
         volumes = self.container.list(host=self.host)
         return self._sync(volumes, type_="volume")
 
+    def _get_ids(self, info_s):
+        """This method returns all the values ids from the list of
+           dictionary received.
+        """
+        ids = [x["Id"] for x in info_s]
+        return ids
+
     def _sync(self, info_s, type_=None):
         info_s = info_s.replace("null", "None")
         info_s = info_s.replace("true", "True")
         info_s = info_s.replace("false", "False")
         info_s = ast.literal_eval(info_s)
-        for info in info_s:
-            info = self._get_format(info["Id"], info, type_)
-            self.synchronizer.synchronize([info])
+        info_s = self._get_ids(info_s)
+        info_s = self._get_format(value=info_s, type_=type_)
+        self.synchronizer.synchronize([info_s])
 
     def _synchronize(self):
         """This method fetch all the containers running on local machines.

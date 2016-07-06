@@ -18,10 +18,16 @@ class ContainerSynchronizer(object):
            and putt the data in the consul
         """
         for info in infos:
-            self._register(info)
+            self._sync(info)
 
-    def _register(self, info):
+    def _get_value(self, key):
+        """This method returns all the values corresponding to a
+           key and resturn.
+        """
+        return self.db.get(key)
+
+    def _sync(self, info):
         """This method is responsible for registering a container.
         """
         (key, value) = info
-        return self.db.put(str(key), str(info))
+        return self.db.put(str(key), str(value))
