@@ -46,7 +46,11 @@ class Synchronizer(Thread):
         """This method converts a container information into the required format
            for the container.
         """
-        value = {"host": self.host, type_: value}
+        f_val = dict()
+        for v in value:
+            f_val[v] = "OK" 
+
+        value = {type_: f_val}
         key = (self.host["host"], type_)
         return (key, value)
   

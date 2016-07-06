@@ -30,4 +30,5 @@ class ContainerSynchronizer(object):
         """This method is responsible for registering a container.
         """
         (key, value) = info
+        print info
         return self.db.put(str(key), str(value))
