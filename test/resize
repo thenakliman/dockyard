@@ -1,0 +1,1 @@
+curl localhost:5869/containers/$1/resize?h=40&w=80

@@ -1,0 +1,8 @@
+oslo.log
+oslo.config
+pecan
+python-consul
+nsenter
+pyroute2
+netifaces
+python-dev
